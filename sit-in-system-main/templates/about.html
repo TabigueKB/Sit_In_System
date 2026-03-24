@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>About University of Cebu</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/uclogo.png') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #f0f4f8;
+        }
+
+        .navbar {
+            background-color: #003399;
+        }
+
+        .navbar .text-white:hover {
+            text-decoration: underline;
+        }
+
+        .about-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            margin: 50px auto;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .about-logo {
+            width: 180px;
+            border-radius: 50%;
+            border: 5px solid #ffcc00;
+            padding: 10px;
+            background-color: #ffffff;
+        }
+
+        .about-title {
+            color: #003399;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .about-text {
+            color: #333333;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .about-card {
+                padding: 20px;
+                margin: 30px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark px-4">
+    <a class="navbar-brand text-white fw-bold">College of Computer Studies Sit-in Monitoring System</a>
+    <div>
+        <a class="text-white me-3" href="/">Home</a>
+        <a class="text-white me-3" href="#">Community</a>
+        <a class="text-white me-3" href="/about">About</a>
+        <a class="text-white me-3" href="/">Login</a>
+        <a class="text-white" href="/register">Register</a>
+    </div>
+</nav>
+
+<div class="about-card text-center">
+    <img src="{{ url_for('static', filename='images/uclogo.png') }}" class="about-logo mb-3">
+    <h1 class="about-title">University of Cebu - Main Campus</h1>
+    <p class="about-text">
+        The University of Cebu (UC) is a premier educational institution located in Cebu City, Philippines. 
+        Established to provide quality higher education, UC offers a wide range of undergraduate and graduate 
+        programs across various disciplines. The Main Campus serves as the flagship campus, hosting state-of-the-art 
+        facilities, dedicated faculty, and a vibrant student community.
+    </p>
+    <p class="about-text">
+        UC is committed to fostering academic excellence, innovation, and holistic development, preparing students 
+        for leadership and professional success. Our mission is to equip students with knowledge, skills, and values 
+        that empower them to make a positive impact in society and excel in their chosen careers.
+    </p>
+</div>
+
+</body>
+</html>

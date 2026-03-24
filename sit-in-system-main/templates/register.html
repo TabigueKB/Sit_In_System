@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/uclogo.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --purple:      #5e3a8c;
+            --purple-dark: #4a2d6f;
+            --purple-light:#f0e6ff;
+            --yellow:      #ffc107;
+            --cream:       #f8f5fc;
+            --border:      #ddd0ef;
+            --text:        #2a1a40;
+            --muted:       #7a6890;
+            --white:       #ffffff;
+            --radius:      5px;
+            --shadow:      0 8px 36px rgba(94,58,140,0.13);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            background-image:
+                radial-gradient(ellipse at 15% 60%, rgba(94,58,140,0.08) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 10%, rgba(255,193,7,0.09) 0%, transparent 55%);
+            min-height: 100vh;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 40px 16px 60px;
+        }
+        .register-wrapper { width: 100%; max-width: 560px; }
+
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 500; color: var(--muted);
+            text-decoration: none; letter-spacing: 0.03em;
+            margin-bottom: 20px; transition: color 0.2s;
+        }
+        .btn-back:hover { color: var(--purple); }
+        .btn-back svg { transition: transform 0.2s; }
+        .btn-back:hover svg { transform: translateX(-3px); }
+
+        .register-card {
+            background: var(--white); border: 1px solid var(--border);
+            border-radius: 10px; box-shadow: var(--shadow); overflow: hidden;
+        }
+
+        .card-header-band {
+            background: var(--purple); padding: 24px 32px 22px;
+            display: flex; align-items: center; gap: 18px;
+            border-bottom: 3px solid var(--yellow);
+        }
+        .card-header-band img { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
+        .header-text .institution {
+            font-size: 10px; font-weight: 600; letter-spacing: 0.15em;
+            text-transform: uppercase; color: var(--yellow); margin-bottom: 3px;
+        }
+        .header-text h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 21px; font-weight: 700; color: var(--white); line-height: 1.2;
+        }
+
+        .card-body-area { padding: 28px 32px 32px; }
+
+        .section-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--purple);
+            margin-bottom: 12px; margin-top: 22px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .section-label:first-of-type { margin-top: 0; }
+
+        .field-row { display: flex; gap: 14px; }
+        .field-row .field-group { flex: 1; }
+        .field-group { margin-bottom: 13px; }
+        .field-group label {
+            display: block; font-size: 11px; font-weight: 600;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--text); margin-bottom: 5px;
+        }
+        .required-dot {
+            display: inline-block; width: 5px; height: 5px;
+            background: var(--yellow); border-radius: 50%;
+            margin-left: 4px; vertical-align: middle; position: relative; top: -1px;
+        }
+
+        .form-control, .form-select {
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 14px !important; font-weight: 400 !important;
+            color: var(--text) !important; background: #faf8fd !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius) !important;
+            padding: 9px 13px !important; height: auto !important;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s !important;
+            box-shadow: none !important;
+        }
+        .form-control::placeholder { color: #b0a0c4 !important; }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--purple) !important; background: var(--white) !important;
+            box-shadow: 0 0 0 3px rgba(94,58,140,0.1) !important; outline: none !important;
+        }
+        .form-select {
+            appearance: none !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6890' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 13px center !important;
+            padding-right: 34px !important;
+        }
+
+        .pw-wrap { position: relative; }
+        .pw-wrap .form-control { padding-right: 40px !important; }
+        .pw-toggle {
+            position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; padding: 0; cursor: pointer;
+            color: var(--muted); line-height: 1; transition: color 0.2s;
+        }
+        .pw-toggle:hover { color: var(--purple); }
+
+        .form-divider { border: none; border-top: 1px solid var(--border); margin: 22px 0 18px; }
+
+        .btn-register-submit {
+            width: 100%; background: var(--purple); color: var(--white);
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            border: none; border-radius: var(--radius); padding: 13px 20px;
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: background 0.25s, transform 0.15s;
+        }
+        .btn-register-submit::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 3px; background: var(--yellow);
+            transform: scaleX(0); transition: transform 0.3s;
+        }
+        .btn-register-submit:hover { background: var(--purple-dark); }
+        .btn-register-submit:hover::after { transform: scaleX(1); }
+        .btn-register-submit:active { transform: scale(0.99); }
+
+        .form-footer-note {
+            text-align: center; font-size: 12px; color: var(--muted); margin-top: 16px;
+        }
+        .form-footer-note a { color: var(--purple); font-weight: 600; text-decoration: none; }
+        .form-footer-note a:hover { text-decoration: underline; }
+
+        @media (max-width: 480px) {
+            .card-header-band { padding: 18px 20px; }
+            .card-body-area { padding: 22px 20px 26px; }
+            .field-row { flex-direction: column; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="register-wrapper">
+
+    <a href="/" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Login
+    </a>
+
+    <div class="register-card">
+
+        <div class="card-header-band">
+            <img src="{{ url_for('static', filename='images/uclogo.png') }}" alt="UC Logo">
+            <div class="header-text">
+                <div class="institution">University of Cebu</div>
+                <h2>Student Registration</h2>
+            </div>
+        </div>
+
+        <div class="card-body-area">
+            <form action="/register_user" method="POST">
+
+                <div class="section-label">Personal Information</div>
+
+                <div class="field-group">
+                    <label>ID Number <span class="required-dot"></span></label>
+                    <input class="form-control" name="student_id" placeholder="e.g. 20210001" pattern="[0-9]+" title="Numbers only" required>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <label>Last Name <span class="required-dot"></span></label>
+                        <input class="form-control" name="last_name" placeholder="Surname" required>
+                    </div>
+                    <div class="field-group">
+                        <label>First Name <span class="required-dot"></span></label>
+                        <input class="form-control" name="first_name" placeholder="Given name" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>Middle Name <span class="required-dot"></span></label>
+                    <input class="form-control" name="middle_name" placeholder="Middle name" required>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <label>Course <span class="required-dot"></span></label>
+                        <select name="course" class="form-select" required>
+                            <option value="">Select course</option>
+                            <option value="BSIT">BSIT</option>
+                            <option value="BSCS">BSCS</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>Year Level <span class="required-dot"></span></label>
+                        <select name="course_level" class="form-select" required>
+                            <option value="">Select year</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label>Email Address <span class="required-dot"></span></label>
+                    <input class="form-control" name="email" type="email" placeholder="student@email.com" required>
+                </div>
+
+                <div class="field-group">
+                    <label>Address <span class="required-dot"></span></label>
+                    <input class="form-control" name="address" placeholder="Current residential address" required>
+                </div>
+
+                <div class="section-label">Account Information</div>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <label>Password <span class="required-dot"></span></label>
+                        <div class="pw-wrap">
+                            <input type="password" class="form-control" id="reg_pw" name="password" placeholder="Min. 8 characters" minlength="8" required>
+                            <button type="button" class="pw-toggle" onclick="togglePw('reg_pw', this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>Confirm Password <span class="required-dot"></span></label>
+                        <div class="pw-wrap">
+                            <input type="password" class="form-control" id="reg_cpw" name="confirm_password" placeholder="Re-enter password" required>
+                            <button type="button" class="pw-toggle" onclick="togglePw('reg_cpw', this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="form-divider">
+                <button type="submit" class="btn-register-submit">Create Account</button>
+            </form>
+
+            <p class="form-footer-note">
+                Already have an account? <a href="/">Sign in here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const svg = btn.querySelector('svg');
+    const showing = input.type === 'password';
+    input.type = showing ? 'text' : 'password';
+    svg.innerHTML = showing
+        ? `<path d="M17.94 17.94A10.99 10.99 0 0112 19c-7 0-11-7-11-7a18.45 18.45 0 015.06-5.94"/>
+           <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+           <line x1="1" y1="1" x2="23" y2="23"/>`
+        : `<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+           <circle cx="12" cy="12" r="3"/>`;
+}
+
+var flashMessages = {{ get_flashed_messages(with_categories=true) | tojson }};
+flashMessages.forEach(function(msg) {
+    Swal.fire({
+        icon: msg[0], title: msg[1],
+        showConfirmButton: false, timer: 2500,
+        toast: true, position: "top-end"
+    });
+});
+</script>
+</body>
+</html>

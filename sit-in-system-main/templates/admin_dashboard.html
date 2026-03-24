@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CCS Admin Dashboard</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .btn-purple { background-color: #5e3a8c; color: white; border: none; }
+        .btn-purple:hover { background-color: #4a2d6f; color: white; }
+        body { background-color: #f5f6fa; }
+        .navbar { background-color: #5e3a8c; }
+        .nav-link, .navbar-brand { color: white !important; font-size: 14px; }
+        .card-header { background-color: #5e3a8c; color: white; }
+        .btn-submit { background-color: #198754; color: white; }
+        .btn-sitin { background-color: #0d6efd; color: white; }
+
+        /* Profile Picture Styles */
+        .profile-pic-wrapper {
+            position: relative; width: 100px; height: 100px; margin: 0 auto 12px;
+        }
+        .profile-pic-preview {
+            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+            border: 3px solid #5e3a8c; background: #f0e6ff; display: block;
+        }
+        .profile-pic-placeholder {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: #f0e6ff; border: 3px solid #5e3a8c;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: #5e3a8c; cursor: pointer;
+        }
+        .profile-pic-actions {
+            display: flex; gap: 8px; justify-content: center;
+            flex-wrap: wrap; margin-bottom: 8px;
+        }
+        #cameraStream { width: 100%; border-radius: 8px; display: none; }
+        #captureCanvas { display: none; }
+        .camera-controls { display: none; gap: 8px; justify-content: center; margin-top: 8px; }
+
+        /* Navbar profile pic thumbnail */
+        .navbar-profile-pic {
+            width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+            border: 2px solid #fff; margin-right: 6px; cursor: pointer;
+        }
+        .navbar-profile-placeholder {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #f0e6ff; border: 2px solid #fff;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1rem; color: #5e3a8c; margin-right: 6px; cursor: pointer;
+        }
+
+        /* Password toggle */
+        .pw-wrap { position: relative; }
+        .pw-wrap .form-control { padding-right: 42px !important; }
+        .pw-toggle {
+            position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; padding: 0; cursor: pointer;
+            color: #888; line-height: 1; transition: color 0.2s; z-index: 5;
+        }
+        .pw-toggle:hover { color: #5e3a8c; }
+
+        /* Sit-in Reports styles */
+        .report-time-in {
+            color: #155724;
+            font-weight: 600;
+            font-size: 0.82rem;
+        }
+        .report-time-out {
+            color: #721c24;
+            font-weight: 600;
+            font-size: 0.82rem;
+        }
+        .report-date {
+            color: #555;
+            font-size: 0.78rem;
+        }
+        .report-still-in {
+            color: #0d6efd;
+            font-weight: 600;
+            font-size: 0.82rem;
+        }
+        .duration-badge {
+            background: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .status-in-badge {
+            background-color: #cce5ff;
+            color: #004085;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .status-out-badge {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .report-filter-bar {
+            background: #f8f5ff;
+            border: 1px solid #e0d0f7;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg px-4">
+    <span class="navbar-brand">College of Computer Studies Admin</span>
+    <div class="ms-auto d-flex align-items-center">
+        <a class="nav-link me-3" href="/dashboard">Home</a>
+        <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#searchModal">Search</a>
+        <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#studentsModal">Students</a>
+        <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#sitInModal">Sit-in</a>
+        <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#recordsModal">View Sit-in Records</a>
+        <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#sitInReportsModal">Sit-in Reports</a>
+        <a class="nav-link me-3" href="#">Feedback Reports</a>
+        <a class="nav-link me-3" href="#">Reservation</a>
+
+        <div class="dropdown ms-2">
+            <button class="btn btn-warning btn-sm dropdown-toggle d-flex align-items-center gap-2"
+                    type="button" data-bs-toggle="dropdown">
+                {% if user.profile_pic %}
+                    <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}"
+                         class="navbar-profile-pic" alt="Profile" style="margin-right:0;">
+                {% else %}
+                    <span style="font-size:1rem;">👤</span>
+                {% endif %}
+                {{ user.first_name }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN BODY -->
+<div class="container mt-4">
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">📊 Statistics</div>
+                <div class="card-body">
+                    <p><strong>Students Registered:</strong> {{total_users}}</p>
+                    <p><strong>Currently Sit-in:</strong> {{current_sitin_count}}</p>
+                    <p><strong>Total Sit-in:</strong> {{total_sitin_count}}</p>
+                    <canvas id="statsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">📢 Announcement</div>
+                <div class="card-body">
+                    <form method="POST" action="/post_announcement">
+                        <label for="announcementText">New Announcement</label>
+                        <textarea id="announcementText" name="announcement"
+                                  class="form-control mb-2" required></textarea>
+                        <button class="btn btn-submit btn-sm">Submit</button>
+                    </form>
+                    <hr>
+                    <h5>Posted Announcement</h5>
+                    {% for ann in announcements %}
+                        <p>{{ann.text}}</p>
+                        {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- SEARCH MODAL -->
+<div class="modal fade" id="searchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Search Student</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="GET" action="/search_student">
+                <label for="searchInput">Search by ID, first name, or last name</label>
+                <input id="searchInput" name="search" class="form-control mb-3"
+                       value="{{ search }}" placeholder="e.g. 123 or Juan" required>
+                <button class="btn btn-purple w-100">Search</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- STUDENTS MODAL -->
+<div class="modal fade" id="studentsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Students Information
+                    {% if search %}
+                        — results for "<strong>{{ search }}</strong>"
+                        <a href="/dashboard" class="btn btn-sm btn-outline-secondary ms-2">Clear</a>
+                    {% endif %}
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <button class="btn btn-purple btn-sm" data-bs-toggle="modal" data-bs-target="#addStudentModal">Add Students</button>
+                    <form method="POST" action="/reset_all_sessions" class="d-inline">
+                        <button class="btn btn-secondary btn-sm" onclick="return confirm('Reset all sessions to 30?')">Reset All Session</button>
+                    </form>
+                </div>
+                <table id="studentListTable" class="table table-bordered table-hover w-100">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID Number</th>
+                            <th>Name</th>
+                            <th>Year Level</th>
+                            <th>Course</th>
+                            <th>Remaining Session</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td>{{s.student_id}}</td>
+                            <td>{{s.first_name}} {{s.middle_name}} {{s.last_name}}</td>
+                            <td>{{s.course_level}}</td>
+                            <td>{{s.course}}</td>
+                            <td>{{s.remaining_session if s.remaining_session else 30}}</td>
+                            <td>
+                                <button class="btn btn-purple btn-sm"
+                                        onclick="openEditModal('{{s.student_id}}','{{s.first_name}}','{{s.last_name}}','{{s.course}}','{{s.course_level}}','{{s.email}}')">
+                                    Edit
+                                </button>
+                                <form method="POST" action="/delete_student/{{s.student_id}}" class="d-inline"
+                                      onsubmit="return confirm('Delete this student?')">
+                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SIT-IN FORM MODAL -->
+<div class="modal fade" id="sitInModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Sit In Form</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/sitin" id="sitInForm">
+                    <label for="sitInIdNumber">ID Number</label>
+                    <input id="sitInIdNumber" name="id_number" class="form-control mb-2" required>
+
+                    <label for="sitInStudentName">Student Name</label>
+                    <input id="sitInStudentName" name="student_name" class="form-control mb-2" readonly>
+
+                    <label for="sitInPurpose">Purpose</label>
+                    <select id="sitInPurpose" name="purpose" class="form-control mb-2" required>
+                        <option value="">Select</option>
+                        <option>C Programming</option>
+                        <option>Java</option>
+                        <option>C#</option>
+                        <option>PHP</option>
+                    </select>
+
+                    <label for="sitInLab">Lab</label>
+                    <select id="sitInLab" name="lab" class="form-control mb-2" required>
+                        <option value="">Select</option>
+                        {% for room in rooms %}
+                        <option>{{ room.room_number }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="sitInRemainingSession">Remaining</label>
+                    <input id="sitInRemainingSession" name="remaining_session" class="form-control mb-2" readonly>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button form="sitInForm" class="btn btn-sitin">Sit In</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW SIT-IN RECORDS MODAL -->
+<div class="modal fade" id="recordsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Current Sit-in</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table id="sitInRecordTable" class="table table-bordered table-hover w-100">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sit ID Number</th>
+                            <th>ID Number</th>
+                            <th>Name</th>
+                            <th>Purpose</th>
+                            <th>Sit Lab</th>
+                            <th>Session</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sitin_records %}
+                        <tr>
+                            <td>{{s.id}}</td>
+                            <td>{{s.student_id}}</td>
+                            <td>{{s.name}}</td>
+                            <td>{{s.purpose}}</td>
+                            <td>{{s.lab}}</td>
+                            <td>{{s.session if s.session else s.time_in}}</td>
+                            <td>{{s.status}}</td>
+                            <td>
+                                {% if s.status == 'IN' %}
+                                <form method="POST" action="/timeout/{{s.id}}" class="d-inline">
+                                    <button class="btn btn-danger btn-sm">OUT</button>
+                                </form>
+                                {% else %}
+                                <span class="text-success fw-bold">Done</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── SIT-IN REPORTS MODAL ── -->
+<div class="modal fade" id="sitInReportsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#5e3a8c; color:white;">
+                <h5 class="modal-title">📋 Sit-in Reports</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Filter Bar -->
+                <div class="report-filter-bar d-flex flex-wrap gap-2 align-items-end">
+                    <div>
+                        <label class="form-label mb-1" style="font-size:0.82rem; font-weight:600;">Filter by Date</label>
+                        <input type="date" id="reportDateFilter" class="form-control form-control-sm" style="width:160px;">
+                    </div>
+                    <div>
+                        <label class="form-label mb-1" style="font-size:0.82rem; font-weight:600;">Filter by Lab</label>
+                        <select id="reportLabFilter" class="form-control form-control-sm" style="width:130px;">
+                            <option value="">All Labs</option>
+                            {% for room in rooms %}
+                            <option>{{ room.room_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label mb-1" style="font-size:0.82rem; font-weight:600;">Filter by Status</label>
+                        <select id="reportStatusFilter" class="form-control form-control-sm" style="width:120px;">
+                            <option value="">All</option>
+                            <option value="IN">Still In</option>
+                            <option value="OUT">Completed</option>
+                        </select>
+                    </div>
+                    <div class="ms-auto d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearReportFilters()">Clear Filters</button>
+                        <a href="/export_sitin_report" class="btn btn-sm btn-purple">⬇ Export CSV</a>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table id="sitInReportsTable" class="table table-bordered table-hover w-100 align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Purpose</th>
+                                <th>Lab</th>
+                                <th>Date</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in sitin_reports %}
+                            <tr>
+                                <td class="text-muted" style="font-size:0.82rem;">{{ loop.index }}</td>
+                                <td>{{ r.student_id }}</td>
+                                <td>{{ r.name }}</td>
+                                <td>{{ r.purpose }}</td>
+                                <td><strong>Lab {{ r.lab }}</strong></td>
+
+                                <!-- Date -->
+                                <td>
+                                    <span class="report-date">
+                                        {{ r.date if r.date else (r.time_in | string)[:10] }}
+                                    </span>
+                                </td>
+
+                                <!-- Time In -->
+                                <td>
+                                    <span class="report-time-in">
+                                        🟢 {{ r.time_in_only if r.time_in_only else (r.time_in | string)[11:16] }}
+                                    </span>
+                                </td>
+
+                                <!-- Time Out -->
+                                <td>
+                                    {% if r.time_out %}
+                                        <span class="report-time-out">
+                                            🔴 {{ r.time_out_only if r.time_out_only else (r.time_out | string)[11:16] }}
+                                        </span>
+                                    {% else %}
+                                        <span class="report-still-in">● Still Inside</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Duration -->
+                                <td>
+                                    {% if r.duration %}
+                                        <span class="duration-badge">{{ r.duration }}</span>
+                                    {% elif r.time_out %}
+                                        <span class="duration-badge" data-timein="{{ r.time_in }}" data-timeout="{{ r.time_out }}">—</span>
+                                    {% else %}
+                                        <span class="text-muted" style="font-size:0.78rem;">ongoing</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Status -->
+                                <td>
+                                    {% if r.status == 'IN' %}
+                                        <span class="status-in-badge">IN</span>
+                                    {% else %}
+                                        <span class="status-out-badge">Done</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD STUDENT MODAL -->
+<div class="modal fade" id="addStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Add Student</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/register_user">
+                    <input class="form-control mb-2" name="student_id" placeholder="Student ID" pattern="[0-9]+" title="Numbers only" required>
+                    <input class="form-control mb-2" name="last_name" placeholder="Last Name" required>
+                    <input class="form-control mb-2" name="first_name" placeholder="First Name" required>
+                    <input class="form-control mb-2" name="middle_name" placeholder="Middle Name" required>
+                    <select name="course" class="form-control mb-2" required>
+                        <option value="">Course</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSCS">BSCS</option>
+                    </select>
+                    <select name="course_level" class="form-control mb-2" required>
+                        <option value="">Year Level</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                    <input class="form-control mb-2" name="email" type="email" placeholder="Email" required>
+                    <input class="form-control mb-2" name="address" placeholder="Address" required>
+                    <div class="pw-wrap mb-2">
+                        <input class="form-control" id="add_student_pw" name="password"
+                               type="password" placeholder="Password (min. 8 characters)" minlength="8" required>
+                        <button type="button" class="pw-toggle" onclick="togglePw('add_student_pw', this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="btn btn-purple w-100">Add Student</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT STUDENT MODAL -->
+<div class="modal fade" id="editStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Edit Student</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/edit_student">
+                    <input type="hidden" name="student_id" id="editStudentId">
+                    <input class="form-control mb-2" name="first_name" id="editFirstName" placeholder="First Name" required>
+                    <input class="form-control mb-2" name="last_name" id="editLastName" placeholder="Last Name" required>
+                    <input class="form-control mb-2" name="course" id="editCourse" placeholder="Course" required>
+                    <input class="form-control mb-2" name="course_level" id="editCourseLevel" placeholder="Year Level" required>
+                    <input class="form-control mb-2" name="email" id="editEmail" placeholder="Email">
+                    <button class="btn btn-purple w-100">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Edit Profile</h5>
+                <button class="btn-close" data-bs-dismiss="modal" onclick="stopCamera()"></button>
+            </div>
+            <form action="/update_profile" method="POST" enctype="multipart/form-data" id="editProfileForm">
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <div class="profile-pic-wrapper">
+                            {% if user.profile_pic %}
+                                <img id="profilePicPreview"
+                                     src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}"
+                                     class="profile-pic-preview" alt="Profile Picture">
+                            {% else %}
+                                <div id="profilePicPlaceholder" class="profile-pic-placeholder"
+                                     onclick="document.getElementById('profilePicInput').click()">👤</div>
+                                <img id="profilePicPreview" src="" class="profile-pic-preview"
+                                     alt="Profile Picture" style="display:none;">
+                            {% endif %}
+                        </div>
+                        <div class="profile-pic-actions">
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    onclick="document.getElementById('profilePicInput').click()">📁 Upload Photo</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                    onclick="startCamera()">📷 Take Photo</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="removePhoto()" id="removePhotoBtn"
+                                    style="{{ 'display:inline-block' if user.profile_pic else 'display:none' }}">✕ Remove</button>
+                        </div>
+                        <input type="file" id="profilePicInput" name="profile_pic"
+                               accept="image/*" style="display:none" onchange="previewUpload(event)">
+                        <input type="hidden" name="remove_pic" id="removePicFlag" value="0">
+                        <input type="hidden" name="captured_photo" id="capturedPhotoData" value="">
+                        <video id="cameraStream" autoplay playsinline></video>
+                        <canvas id="captureCanvas"></canvas>
+                        <div class="camera-controls" id="cameraControls">
+                            <button type="button" class="btn btn-sm btn-success" onclick="capturePhoto()">📸 Capture</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="stopCamera()">Cancel</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control mb-2" value="{{ user.first_name }}" required>
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control mb-2" value="{{ user.last_name }}" required>
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control mb-2" value="{{ user.email if user.email else '' }}" required>
+                    <label class="form-label">Address</label>
+                    <input type="text" name="address" class="form-control mb-2" value="{{ user.address if user.address else '' }}" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="stopCamera()">Cancel</button>
+                    <button type="submit" class="btn btn-purple">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// ── Password toggle ──
+function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const svg = btn.querySelector('svg');
+    const showing = input.type === 'password';
+    input.type = showing ? 'text' : 'password';
+    svg.innerHTML = showing
+        ? `<path d="M17.94 17.94A10.99 10.99 0 0112 19c-7 0-11-7-11-7a18.45 18.45 0 015.06-5.94"/>
+           <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+           <line x1="1" y1="1" x2="23" y2="23"/>`
+        : `<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+           <circle cx="12" cy="12" r="3"/>`;
+}
+
+// ── Auto-open Students modal after search ──
+const openSearch = {{ (open_search | default(false)) | tojson }};
+if (openSearch) {
+    new bootstrap.Modal(document.getElementById('studentsModal')).show();
+}
+
+// ── DataTables init ──
+let reportsTable = null;
+
+$('#studentsModal').on('shown.bs.modal', function () {
+    if (!$.fn.DataTable.isDataTable('#studentListTable')) {
+        $('#studentListTable').DataTable({ pageLength: 10 });
+    }
+});
+$('#recordsModal').on('shown.bs.modal', function () {
+    if (!$.fn.DataTable.isDataTable('#sitInRecordTable')) {
+        $('#sitInRecordTable').DataTable({ pageLength: 10 });
+    }
+});
+$('#sitInReportsModal').on('shown.bs.modal', function () {
+    if (!$.fn.DataTable.isDataTable('#sitInReportsTable')) {
+        reportsTable = $('#sitInReportsTable').DataTable({
+            pageLength: 15,
+            order: [[5, 'desc'], [6, 'desc']], // Sort by date desc, then time in desc
+            columnDefs: [
+                { orderable: false, targets: [] }
+            ]
+        });
+    }
+    // Auto-compute duration for rows that don't have it
+    computeDurations();
+});
+
+// ── Compute durations client-side where missing ──
+function computeDurations() {
+    document.querySelectorAll('.duration-badge[data-timein]').forEach(function(el) {
+        const tin = new Date(el.dataset.timein);
+        const tout = new Date(el.dataset.timeout);
+        if (!isNaN(tin) && !isNaN(tout)) {
+            const diffMs = tout - tin;
+            const mins = Math.floor(diffMs / 60000);
+            const hrs = Math.floor(mins / 60);
+            const remaining = mins % 60;
+            el.textContent = hrs > 0 ? `${hrs}h ${remaining}m` : `${mins}m`;
+        }
+    });
+}
+
+// ── Report Filters ──
+function applyReportFilters() {
+    if (!reportsTable) return;
+    const dateVal = document.getElementById('reportDateFilter').value;
+    const labVal  = document.getElementById('reportLabFilter').value.toLowerCase();
+    const statusVal = document.getElementById('reportStatusFilter').value.toUpperCase();
+
+    // Custom search via DataTables API
+    $.fn.dataTable.ext.search = [];
+
+    $.fn.dataTable.ext.search.push(function(settings, data) {
+        if (settings.nTable.id !== 'sitInReportsTable') return true;
+        const rowDate   = data[5].trim();   // Date column
+        const rowLab    = data[4].toLowerCase();
+        const rowStatus = data[9].toUpperCase();
+
+        if (dateVal && !rowDate.includes(dateVal)) return false;
+        if (labVal  && !rowLab.includes(labVal))   return false;
+        if (statusVal && !rowStatus.includes(statusVal)) return false;
+        return true;
+    });
+
+    reportsTable.draw();
+}
+
+function clearReportFilters() {
+    document.getElementById('reportDateFilter').value = '';
+    document.getElementById('reportLabFilter').value = '';
+    document.getElementById('reportStatusFilter').value = '';
+    $.fn.dataTable.ext.search = [];
+    if (reportsTable) reportsTable.draw();
+}
+
+document.getElementById('reportDateFilter').addEventListener('change', applyReportFilters);
+document.getElementById('reportLabFilter').addEventListener('change', applyReportFilters);
+document.getElementById('reportStatusFilter').addEventListener('change', applyReportFilters);
+
+// ── Bar chart ──
+var chartLabels = {{ purposes | tojson }};
+var chartData   = {{ purpose_counts | tojson }};
+
+new Chart(document.getElementById('statsChart'), {
+    type: 'bar',
+    data: {
+        labels: chartLabels,
+        datasets: [{
+            label: 'Total Sit-ins',
+            data: chartData,
+            backgroundColor: [
+                'rgba(94, 58, 140, 0.8)',
+                'rgba(13, 110, 253, 0.8)',
+                'rgba(25, 135, 84, 0.8)',
+                'rgba(255, 193, 7, 0.8)'
+            ],
+            borderColor: [
+                'rgba(94, 58, 140, 1)',
+                'rgba(13, 110, 253, 1)',
+                'rgba(25, 135, 84, 1)',
+                'rgba(255, 193, 7, 1)'
+            ],
+            borderWidth: 2, borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + ' sit-ins' } }
+        },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, title: { display: true, text: 'Number of Sit-ins' } },
+            x: { title: { display: true, text: 'Purpose' } }
+        }
+    }
+});
+
+// ── Fetch student info for sit-in form ──
+document.getElementById('sitInIdNumber').addEventListener('blur', function () {
+    const id = this.value;
+    fetch(`/get_student_info?id=${id}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('sitInStudentName').value = data.name;
+                document.getElementById('sitInRemainingSession').value = data.remaining_session;
+            } else {
+                alert("Student not found");
+            }
+        });
+});
+
+// ── Pre-fill Edit Student modal ──
+function openEditModal(id, firstName, lastName, course, courseLevel, email) {
+    document.getElementById('editStudentId').value = id;
+    document.getElementById('editFirstName').value = firstName;
+    document.getElementById('editLastName').value = lastName;
+    document.getElementById('editCourse').value = course;
+    document.getElementById('editCourseLevel').value = courseLevel;
+    document.getElementById('editEmail').value = email;
+    new bootstrap.Modal(document.getElementById('editStudentModal')).show();
+}
+
+// ── Profile Pic ──
+function previewUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        showPreviewImage(e.target.result);
+        document.getElementById('capturedPhotoData').value = '';
+        document.getElementById('removePicFlag').value = '0';
+    };
+    reader.readAsDataURL(file);
+}
+function showPreviewImage(src) {
+    const placeholder = document.getElementById('profilePicPlaceholder');
+    const preview = document.getElementById('profilePicPreview');
+    if (placeholder) placeholder.style.display = 'none';
+    preview.src = src; preview.style.display = 'block';
+    document.getElementById('removePhotoBtn').style.display = 'inline-block';
+}
+function removePhoto() {
+    const placeholder = document.getElementById('profilePicPlaceholder');
+    const preview = document.getElementById('profilePicPreview');
+    preview.style.display = 'none'; preview.src = '';
+    if (placeholder) placeholder.style.display = 'flex';
+    document.getElementById('profilePicInput').value = '';
+    document.getElementById('capturedPhotoData').value = '';
+    document.getElementById('removePicFlag').value = '1';
+    document.getElementById('removePhotoBtn').style.display = 'none';
+}
+let cameraStream = null;
+function startCamera() {
+    const video = document.getElementById('cameraStream');
+    const controls = document.getElementById('cameraControls');
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            cameraStream = stream; video.srcObject = stream;
+            video.style.display = 'block'; controls.style.display = 'flex';
+        })
+        .catch(function(err) { alert('Could not access camera: ' + err.message); });
+}
+function capturePhoto() {
+    const video = document.getElementById('cameraStream');
+    const canvas = document.getElementById('captureCanvas');
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+    document.getElementById('capturedPhotoData').value = dataURL;
+    document.getElementById('profilePicInput').value = '';
+    document.getElementById('removePicFlag').value = '0';
+    showPreviewImage(dataURL); stopCamera();
+}
+function stopCamera() {
+    if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+    document.getElementById('cameraStream').style.display = 'none';
+    document.getElementById('cameraControls').style.display = 'none';
+}
+document.getElementById('editProfileModal').addEventListener('hidden.bs.modal', stopCamera);
+
+// ── Flash Messages ──
+var flashMessages = {{ get_flashed_messages(with_categories=true) | tojson }};
+flashMessages.forEach(function(msg) {
+    Swal.fire({
+        icon: msg[0], title: msg[1],
+        showConfirmButton: false, timer: 2500,
+        toast: true, position: "top-end"
+    });
+});
+</script>
+
+</body>
+</html>

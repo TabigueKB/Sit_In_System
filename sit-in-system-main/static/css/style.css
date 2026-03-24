@@ -1,0 +1,119 @@
+/* ===== GLOBAL ===== */
+
+body {
+    background-color: #f7f5fb;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== NAVBAR ===== */
+
+.navbar {
+    background-color: #5e3a8c !important;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: white !important;
+}
+
+.navbar img {
+    margin-right: 8px;
+}
+
+/* ===== LINKS ===== */
+
+a {
+    color: #5e3a8c;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #472a70;
+}
+
+/* ===== FORM CARD ===== */
+
+.form-card {
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+/* ===== INPUT FIELDS ===== */
+
+.form-control {
+    border-radius: 8px;
+}
+
+/* ===== PRIMARY BUTTON (YELLOW) ===== */
+
+.btn-primary {
+    background-color: #f2c94c;
+    border: none;
+    color: #4b2a7a;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #e6b93c;
+}
+
+/* ===== REGISTER / SECONDARY BUTTON ===== */
+
+.btn-register {
+    background-color: #6b46a3;
+    color: white;
+    border: none;
+}
+
+.btn-register:hover {
+    background-color: #5a3990;
+}
+
+/* ===== DASHBOARD CARDS ===== */
+
+.dashboard-card {
+    border: none;
+    border-left: 6px solid #f2c94c;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+}
+
+/* ===== CARD TEXT ===== */
+
+.dashboard-card h5 {
+    color: #5e3a8c;
+    font-weight: bold;
+}
+
+.dashboard-card p {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* ===== LOGO AREA ===== */
+
+.logo-area {
+    text-align: center;
+}
+
+.logo-area img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ===== RESPONSIVE FIX ===== */
+
+@media (max-width: 768px) {
+
+    .logo-area {
+        margin-bottom: 30px;
+    }
+
+}

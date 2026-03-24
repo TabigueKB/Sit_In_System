@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Profile Picture Styles */
+        .profile-pic-wrapper {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 12px;
+        }
+        .profile-pic-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #5e3a8c;
+            background: #f0e6ff;
+            display: block;
+        }
+        .profile-pic-placeholder {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #f0e6ff;
+            border: 3px solid #5e3a8c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #5e3a8c;
+            cursor: pointer;
+        }
+        .profile-pic-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        #cameraStream {
+            width: 100%;
+            border-radius: 8px;
+            display: none;
+        }
+        #captureCanvas {
+            display: none;
+        }
+        .camera-controls {
+            display: none;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        /* Recent Sessions Table */
+        .recent-sessions-card .card-header {
+            background-color: #5e3a8c;
+            color: white;
+            font-weight: 600;
+        }
+        .session-badge-done {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .session-badge-active {
+            background-color: #cce5ff;
+            color: #004085;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .btn-feedback {
+            background-color: #5e3a8c;
+            color: white;
+            font-size: 0.78rem;
+            padding: 3px 12px;
+            border-radius: 20px;
+            border: none;
+            transition: background 0.2s;
+        }
+        .btn-feedback:hover {
+            background-color: #4a2d70;
+            color: white;
+        }
+        .btn-feedback:disabled {
+            background-color: #c8b8e0;
+            cursor: not-allowed;
+        }
+
+        /* Star Rating */
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            font-size: 2rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f5a623;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark px-4">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" width="40">
+    <span class="navbar-brand ms-2">CCS Sit-In Monitoring System</span>
+    <div class="ms-auto d-flex align-items-center">
+        <span class="text-white me-3">Welcome, {{ user.first_name }}</span>
+        <div class="dropdown">
+            <button class="btn btn-warning btn-sm dropdown-toggle" type="button"
+                    data-bs-toggle="dropdown">
+                Actions
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- Profile Info Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Student ID</h6>
+                    <strong>{{ user.student_id }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Course</h6>
+                    <strong>{{ user.course }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Year Level</h6>
+                    <strong>{{ user.course_level }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Remaining Sessions</h6>
+                    <strong class="{{ 'text-danger' if remaining_session <= 5 else 'text-success' }}">
+                        {{ remaining_session }}
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcements from Admin -->
+    {% if announcements %}
+    <div class="card mb-4">
+        <div class="card-header" style="background-color:#5e3a8c; color:white;">
+            📢 Announcements
+        </div>
+        <div class="card-body">
+            {% for ann in announcements %}
+                <p class="mb-1">{{ ann.text }}</p>
+                {% if not loop.last %}<hr class="my-2">{% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Active Sit-in Status -->
+    {% if active_sitin %}
+    <div class="alert alert-success d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-1">✅ Currently Sitting In</h5>
+            <span>Lab <strong>{{ active_sitin.lab }}</strong> &nbsp;|&nbsp;
+                  Purpose: <strong>{{ active_sitin.purpose }}</strong> &nbsp;|&nbsp;
+                  Time In: <strong>{{ active_sitin.time_in }}</strong>
+            </span>
+        </div>
+        <form method="POST" action="/student_timeout/{{ active_sitin.id }}">
+            <button class="btn btn-danger">Time Out</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h5 class="mb-0">No Active Sit-in Session</h5>
+    </div>
+    {% endif %}
+
+    <!-- Available Labs -->
+    <h5 class="mb-3">Available Labs</h5>
+    <div class="row mb-4">
+        {% for lab in labs %}
+        <div class="col-md-4 mb-3">
+            <div class="card text-center {{ 'border-danger' if lab.current >= lab.capacity else 'border-success' }}">
+                <div class="card-header {{ 'bg-danger text-white' if lab.current >= lab.capacity else 'bg-success text-white' }}">
+                    Lab {{ lab.name }}
+                </div>
+                <div class="card-body">
+                    <p class="mb-1">
+                        <strong>{{ lab.current }}</strong> / {{ lab.capacity }} seats taken
+                    </p>
+                    {% if active_sitin %}
+                        <button class="btn btn-secondary w-100" disabled>Already Sitting In</button>
+                    {% elif remaining_session <= 0 %}
+                        <button class="btn btn-secondary w-100" disabled>No Sessions Left</button>
+                    {% elif lab.current >= lab.capacity %}
+                        <button class="btn btn-danger w-100" disabled>Full</button>
+                    {% else %}
+                        <button class="btn btn-success w-100"
+                                onclick="openSitInModal('{{ lab.name }}')">
+                            Sit In
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ── RECENT SESSIONS ── -->
+    <div class="card recent-sessions-card mb-5">
+        <div class="card-header d-flex align-items-center gap-2">
+            🕒 Recent Sit-In Sessions
+        </div>
+        <div class="card-body p-0">
+            {% if recent_sessions %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Lab</th>
+                            <th>Purpose</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Status</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in recent_sessions %}
+                        <tr>
+                            <td class="text-muted" style="font-size:0.85rem;">{{ loop.index }}</td>
+                            <td><strong>Lab {{ session.lab }}</strong></td>
+                            <td>{{ session.purpose }}</td>
+                            <td style="font-size:0.85rem;">{{ session.time_in }}</td>
+                            <td style="font-size:0.85rem;">
+                                {{ session.time_out if session.time_out else '—' }}
+                            </td>
+                            <td>
+                                {% if session.time_out %}
+                                    <span class="session-badge-done">Done</span>
+                                {% else %}
+                                    <span class="session-badge-active">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if session.time_out %}
+                                    {% if session.has_feedback %}
+                                        <button class="btn-feedback" disabled title="Feedback already submitted">
+                                            ✓ Sent
+                                        </button>
+                                    {% else %}
+                                        <button class="btn-feedback"
+                                                onclick="openFeedbackModal('{{ session.id }}', 'Lab {{ session.lab }}')">
+                                            💬 Give Feedback
+                                        </button>
+                                    {% endif %}
+                                {% else %}
+                                    <button class="btn-feedback" disabled title="Session still active">
+                                        —
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-4">
+                <p class="mb-0">No recent sessions found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- ── SIT-IN MODAL ── -->
+<div class="modal fade" id="sitInModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Sit In — Lab <span id="modalLabName"></span></h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/student_sitin" id="studentSitInForm">
+                    <input type="hidden" name="lab" id="sitInLabInput">
+                    <label>Purpose</label>
+                    <select name="purpose" class="form-control mb-3" required>
+                        <option value="">Select</option>
+                        <option>C Programming</option>
+                        <option>Java</option>
+                        <option>C#</option>
+                        <option>PHP</option>
+                    </select>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button form="studentSitInForm" class="btn btn-success">Confirm Sit In</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── FEEDBACK MODAL ── -->
+<div class="modal fade" id="feedbackModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#5e3a8c; color:white;">
+                <h5 class="modal-title">💬 Feedback for <span id="feedbackLabLabel"></span></h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/submit_feedback" id="feedbackForm">
+                <div class="modal-body">
+                    <input type="hidden" name="session_id" id="feedbackSessionId">
+
+                    <!-- Star Rating -->
+                    <label class="form-label fw-semibold">Rate your experience</label>
+                    <div class="star-rating">
+                        <input type="radio" name="rating" id="star5" value="5">
+                        <label for="star5" title="Excellent">★</label>
+                        <input type="radio" name="rating" id="star4" value="4">
+                        <label for="star4" title="Good">★</label>
+                        <input type="radio" name="rating" id="star3" value="3">
+                        <label for="star3" title="Average">★</label>
+                        <input type="radio" name="rating" id="star2" value="2">
+                        <label for="star2" title="Poor">★</label>
+                        <input type="radio" name="rating" id="star1" value="1">
+                        <label for="star1" title="Terrible">★</label>
+                    </div>
+
+                    <!-- Feedback Text -->
+                    <label class="form-label fw-semibold">Your Feedback</label>
+                    <textarea name="feedback_text"
+                              id="feedbackText"
+                              class="form-control"
+                              rows="4"
+                              maxlength="500"
+                              placeholder="Share your experience in this lab room..."
+                              required></textarea>
+                    <div class="d-flex justify-content-end mt-1">
+                        <small class="text-muted"><span id="charCount">0</span>/500</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="background:#5e3a8c; border-color:#5e3a8c;">
+                        Submit Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ── EDIT PROFILE MODAL ── -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Edit Profile</h5>
+                <button class="btn-close" data-bs-dismiss="modal" onclick="stopCamera()"></button>
+            </div>
+            <form action="/update_profile" method="POST" enctype="multipart/form-data" id="editProfileForm">
+                <div class="modal-body">
+
+                    <!-- Profile Picture Section -->
+                    <div class="text-center mb-3">
+                        <div class="profile-pic-wrapper">
+                            {% if user.profile_pic %}
+                                <img id="profilePicPreview"
+                                     src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}"
+                                     class="profile-pic-preview" alt="Profile Picture">
+                            {% else %}
+                                <div id="profilePicPlaceholder" class="profile-pic-placeholder" onclick="document.getElementById('profilePicInput').click()">
+                                    👤
+                                </div>
+                                <img id="profilePicPreview" src="" class="profile-pic-preview" alt="Profile Picture" style="display:none;">
+                            {% endif %}
+                        </div>
+
+                        <div class="profile-pic-actions">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('profilePicInput').click()">
+                                📁 Upload Photo
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="startCamera()">
+                                📷 Take Photo
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removePhoto()" id="removePhotoBtn"
+                                style="{{ 'display:inline-block' if user.profile_pic else 'display:none' }}">
+                                ✕ Remove
+                            </button>
+                        </div>
+
+                        <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" style="display:none" onchange="previewUpload(event)">
+                        <input type="hidden" name="remove_pic" id="removePicFlag" value="0">
+                        <input type="hidden" name="captured_photo" id="capturedPhotoData" value="">
+
+                        <video id="cameraStream" autoplay playsinline></video>
+                        <canvas id="captureCanvas"></canvas>
+
+                        <div class="camera-controls" id="cameraControls">
+                            <button type="button" class="btn btn-sm btn-success" onclick="capturePhoto()">📸 Capture</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="stopCamera()">Cancel</button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control mb-2"
+                           value="{{ user.first_name }}" required>
+
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control mb-2"
+                           value="{{ user.last_name }}" required>
+
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control mb-2"
+                           value="{{ user.email }}" required>
+
+                    <label class="form-label">Address</label>
+                    <input type="text" name="address" class="form-control mb-2"
+                           value="{{ user.address }}" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="stopCamera()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// ── Sit-In Modal ──
+function openSitInModal(labName) {
+    document.getElementById('modalLabName').textContent = labName;
+    document.getElementById('sitInLabInput').value = labName;
+    new bootstrap.Modal(document.getElementById('sitInModal')).show();
+}
+
+// ── Feedback Modal ──
+function openFeedbackModal(sessionId, labLabel) {
+    document.getElementById('feedbackSessionId').value = sessionId;
+    document.getElementById('feedbackLabLabel').textContent = labLabel;
+    document.getElementById('feedbackText').value = '';
+    document.getElementById('charCount').textContent = '0';
+    // Reset star rating
+    document.querySelectorAll('.star-rating input').forEach(r => r.checked = false);
+    new bootstrap.Modal(document.getElementById('feedbackModal')).show();
+}
+
+// ── Char counter for feedback ──
+document.getElementById('feedbackText').addEventListener('input', function() {
+    document.getElementById('charCount').textContent = this.value.length;
+});
+
+// ── Profile Pic: Upload Preview ──
+function previewUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        showPreviewImage(e.target.result);
+        document.getElementById('capturedPhotoData').value = '';
+        document.getElementById('removePicFlag').value = '0';
+    };
+    reader.readAsDataURL(file);
+}
+
+function showPreviewImage(src) {
+    const placeholder = document.getElementById('profilePicPlaceholder');
+    const preview = document.getElementById('profilePicPreview');
+    if (placeholder) placeholder.style.display = 'none';
+    preview.src = src;
+    preview.style.display = 'block';
+    document.getElementById('removePhotoBtn').style.display = 'inline-block';
+}
+
+// ── Profile Pic: Remove ──
+function removePhoto() {
+    const placeholder = document.getElementById('profilePicPlaceholder');
+    const preview = document.getElementById('profilePicPreview');
+    preview.style.display = 'none';
+    preview.src = '';
+    if (placeholder) placeholder.style.display = 'flex';
+    document.getElementById('profilePicInput').value = '';
+    document.getElementById('capturedPhotoData').value = '';
+    document.getElementById('removePicFlag').value = '1';
+    document.getElementById('removePhotoBtn').style.display = 'none';
+}
+
+// ── Camera: Start ──
+let cameraStream = null;
+function startCamera() {
+    const video = document.getElementById('cameraStream');
+    const controls = document.getElementById('cameraControls');
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            cameraStream = stream;
+            video.srcObject = stream;
+            video.style.display = 'block';
+            controls.style.display = 'flex';
+        })
+        .catch(function(err) {
+            alert('Could not access camera: ' + err.message);
+        });
+}
+
+// ── Camera: Capture ──
+function capturePhoto() {
+    const video = document.getElementById('cameraStream');
+    const canvas = document.getElementById('captureCanvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+    document.getElementById('capturedPhotoData').value = dataURL;
+    document.getElementById('profilePicInput').value = '';
+    document.getElementById('removePicFlag').value = '0';
+    showPreviewImage(dataURL);
+    stopCamera();
+}
+
+// ── Camera: Stop ──
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+    }
+    document.getElementById('cameraStream').style.display = 'none';
+    document.getElementById('cameraControls').style.display = 'none';
+}
+
+document.getElementById('editProfileModal').addEventListener('hidden.bs.modal', stopCamera);
+
+// ── Flash Messages ──
+var flashMessages = {{ get_flashed_messages(with_categories=true) | tojson }};
+flashMessages.forEach(function(msg) {
+    Swal.fire({
+        icon: msg[0],
+        title: msg[1],
+        showConfirmButton: false,
+        timer: 2500,
+        toast: true,
+        position: "top-end"
+    });
+});
+</script>
+
+</body>
+</html>
