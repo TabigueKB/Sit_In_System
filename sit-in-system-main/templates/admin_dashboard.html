@@ -17,102 +17,52 @@
         .nav-link, .navbar-brand { color: white !important; font-size: 14px; }
         .card-header { background-color: #5e3a8c; color: white; }
         .btn-submit { background-color: #198754; color: white; }
-        .btn-sitin { background-color: #0d6efd; color: white; }
+        .btn-sitin  { background-color: #0d6efd; color: white; }
 
         /* Profile Picture Styles */
-        .profile-pic-wrapper {
-            position: relative; width: 100px; height: 100px; margin: 0 auto 12px;
-        }
-        .profile-pic-preview {
-            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
-            border: 3px solid #5e3a8c; background: #f0e6ff; display: block;
-        }
-        .profile-pic-placeholder {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: #f0e6ff; border: 3px solid #5e3a8c;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; color: #5e3a8c; cursor: pointer;
-        }
-        .profile-pic-actions {
-            display: flex; gap: 8px; justify-content: center;
-            flex-wrap: wrap; margin-bottom: 8px;
-        }
+        .profile-pic-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 12px; }
+        .profile-pic-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #5e3a8c; background: #f0e6ff; display: block; }
+        .profile-pic-placeholder { width: 100px; height: 100px; border-radius: 50%; background: #f0e6ff; border: 3px solid #5e3a8c; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #5e3a8c; cursor: pointer; }
+        .profile-pic-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
         #cameraStream { width: 100%; border-radius: 8px; display: none; }
         #captureCanvas { display: none; }
         .camera-controls { display: none; gap: 8px; justify-content: center; margin-top: 8px; }
 
-        /* Navbar profile pic thumbnail */
-        .navbar-profile-pic {
-            width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
-            border: 2px solid #fff; margin-right: 6px; cursor: pointer;
-        }
-        .navbar-profile-placeholder {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: #f0e6ff; border: 2px solid #fff;
-            display: inline-flex; align-items: center; justify-content: center;
-            font-size: 1rem; color: #5e3a8c; margin-right: 6px; cursor: pointer;
-        }
+        .navbar-profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; margin-right: 6px; cursor: pointer; }
+        .navbar-profile-placeholder { width: 32px; height: 32px; border-radius: 50%; background: #f0e6ff; border: 2px solid #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; color: #5e3a8c; margin-right: 6px; cursor: pointer; }
 
         /* Password toggle */
         .pw-wrap { position: relative; }
         .pw-wrap .form-control { padding-right: 42px !important; }
-        .pw-toggle {
-            position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; padding: 0; cursor: pointer;
-            color: #888; line-height: 1; transition: color 0.2s; z-index: 5;
-        }
+        .pw-toggle { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; cursor: pointer; color: #888; line-height: 1; transition: color .2s; z-index: 5; }
         .pw-toggle:hover { color: #5e3a8c; }
 
-        /* Sit-in Reports styles */
-        .report-time-in {
-            color: #155724;
-            font-weight: 600;
-            font-size: 0.82rem;
+        /* Sit-in Reports */
+        .report-time-in  { color: #155724; font-weight: 600; font-size: .82rem; }
+        .report-time-out { color: #721c24; font-weight: 600; font-size: .82rem; }
+        .report-date     { color: #555; font-size: .78rem; }
+        .report-still-in { color: #0d6efd; font-weight: 600; font-size: .82rem; }
+        .duration-badge  { background: #e9ecef; color: #495057; padding: 2px 8px; border-radius: 12px; font-size: .75rem; }
+        .status-in-badge  { background-color: #cce5ff; color: #004085; padding: 3px 10px; border-radius: 20px; font-size: .78rem; font-weight: 600; }
+        .status-out-badge { background-color: #d4edda; color: #155724; padding: 3px 10px; border-radius: 20px; font-size: .78rem; font-weight: 600; }
+        .report-filter-bar { background: #f8f5ff; border: 1px solid #e0d0f7; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
+
+        /* Reservation status badges */
+        .res-pending   { background:#fff3cd; color:#856404; padding:3px 10px; border-radius:20px; font-size:.78rem; font-weight:600; border:1px solid #ffc107; }
+        .res-approved  { background:#d1e7dd; color:#0a3622; padding:3px 10px; border-radius:20px; font-size:.78rem; font-weight:600; border:1px solid #198754; }
+        .res-declined  { background:#f8d7da; color:#58151c; padding:3px 10px; border-radius:20px; font-size:.78rem; font-weight:600; border:1px solid #dc3545; }
+        .res-cancelled { background:#e2e3e5; color:#41464b; padding:3px 10px; border-radius:20px; font-size:.78rem; font-weight:600; }
+
+        /* Pending notification dot */
+        .notif-dot {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #dc3545; color: white; border-radius: 50%;
+            width: 18px; height: 18px; font-size: .68rem; font-weight: 700;
+            margin-left: 4px; vertical-align: middle; line-height: 1;
         }
-        .report-time-out {
-            color: #721c24;
-            font-weight: 600;
-            font-size: 0.82rem;
-        }
-        .report-date {
-            color: #555;
-            font-size: 0.78rem;
-        }
-        .report-still-in {
-            color: #0d6efd;
-            font-weight: 600;
-            font-size: 0.82rem;
-        }
-        .duration-badge {
-            background: #e9ecef;
-            color: #495057;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-        }
-        .status-in-badge {
-            background-color: #cce5ff;
-            color: #004085;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-        .status-out-badge {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-        .report-filter-bar {
-            background: #f8f5ff;
-            border: 1px solid #e0d0f7;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-        }
+
+        /* Accept/Decline inline form */
+        .action-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     </style>
 </head>
 
@@ -128,8 +78,13 @@
         <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#sitInModal">Sit-in</a>
         <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#recordsModal">View Sit-in Records</a>
         <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#sitInReportsModal">Sit-in Reports</a>
-        <a class="nav-link me-3" href="#">Feedback Reports</a>
-        <a class="nav-link me-3" href="#">Reservation</a>
+        <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#reservationsModal">
+            Reservations
+            {% if pending_reservations_count > 0 %}
+                <span class="notif-dot">{{ pending_reservations_count }}</span>
+            {% endif %}
+        </a>
+        <a class="nav-link me-3" href="#" data-bs-toggle="modal" data-bs-target="#feedbackReportsModal">Feedback Reports</a>
 
         <div class="dropdown ms-2">
             <button class="btn btn-warning btn-sm dropdown-toggle d-flex align-items-center gap-2"
@@ -159,9 +114,15 @@
             <div class="card">
                 <div class="card-header">📊 Statistics</div>
                 <div class="card-body">
-                    <p><strong>Students Registered:</strong> {{total_users}}</p>
-                    <p><strong>Currently Sit-in:</strong> {{current_sitin_count}}</p>
-                    <p><strong>Total Sit-in:</strong> {{total_sitin_count}}</p>
+                    <p><strong>Students Registered:</strong> {{ total_users }}</p>
+                    <p><strong>Currently Sit-in:</strong> {{ current_sitin_count }}</p>
+                    <p><strong>Total Sit-in:</strong> {{ total_sitin_count }}</p>
+                    <p>
+                        <strong>Pending Reservations:</strong>
+                        <span class="{{ 'text-danger fw-bold' if pending_reservations_count > 0 else '' }}">
+                            {{ pending_reservations_count }}
+                        </span>
+                    </p>
                     <canvas id="statsChart"></canvas>
                 </div>
             </div>
@@ -178,15 +139,256 @@
                         <button class="btn btn-submit btn-sm">Submit</button>
                     </form>
                     <hr>
-                    <h5>Posted Announcement</h5>
+                    <h5>Posted Announcements</h5>
                     {% for ann in announcements %}
-                        <p>{{ann.text}}</p>
+                        <p>{{ ann.text }}</p>
                         {% if not loop.last %}<hr>{% endif %}
                     {% endfor %}
                 </div>
             </div>
         </div>
 
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     RESERVATIONS MODAL
+══════════════════════════════════════════ -->
+<div class="modal fade" id="reservationsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#5e3a8c; color:white;">
+                <h5 class="modal-title">
+                    🗓️ Student Reservations
+                    {% if pending_reservations_count > 0 %}
+                        <span class="badge bg-warning text-dark ms-2">{{ pending_reservations_count }} pending</span>
+                    {% endif %}
+                </h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Filter bar -->
+                <div class="report-filter-bar d-flex flex-wrap gap-2 align-items-end mb-3">
+                    <div>
+                        <label class="form-label mb-1" style="font-size:.82rem; font-weight:600;">Filter by Status</label>
+                        <select id="resStatusFilter" class="form-control form-control-sm" style="width:140px;">
+                            <option value="">All</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="DECLINED">Declined</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label mb-1" style="font-size:.82rem; font-weight:600;">Filter by Lab</label>
+                        <select id="resLabFilter" class="form-control form-control-sm" style="width:130px;">
+                            <option value="">All Labs</option>
+                            {% for room in rooms %}
+                            <option>{{ room.room_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="ms-auto">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearResFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="reservationsTable" class="table table-bordered table-hover w-100 align-middle" style="font-size:.87rem;">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Lab</th>
+                                <th>Purpose</th>
+                                <th>Date</th>
+                                <th>Time Slot</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Admin Note</th>
+                                <th style="min-width:200px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in reservations %}
+                            <tr>
+                                <td class="text-muted">{{ loop.index }}</td>
+                                <td>{{ r.student_id }}</td>
+                                <td>{{ r.name }}</td>
+                                <td><strong>Lab {{ r.lab }}</strong></td>
+                                <td>{{ r.purpose }}</td>
+                                <td>{{ r.date }}</td>
+                                <td style="font-size:.8rem;">{{ r.time_slot }}</td>
+                                <td style="font-size:.78rem; color:#666;">
+                                    {{ (r.created_at | string)[:16] }}
+                                </td>
+                                <td>
+                                    {% if r.status == 'PENDING' %}
+                                        <span class="res-pending">⏳ Pending</span>
+                                    {% elif r.status == 'APPROVED' %}
+                                        <span class="res-approved">✅ Approved</span>
+                                    {% elif r.status == 'DECLINED' %}
+                                        <span class="res-declined">❌ Declined</span>
+                                    {% else %}
+                                        <span class="res-cancelled">— Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td style="font-size:.78rem; color:#555; max-width:140px;">
+                                    {{ r.admin_note if r.admin_note else '—' }}
+                                </td>
+                                <td>
+                                    {% if r.status == 'PENDING' %}
+                                    <div class="action-row">
+                                        <!-- Accept -->
+                                        <form method="POST"
+                                              action="/admin_reservation_action/{{ r.id }}/accept"
+                                              onsubmit="return confirmAction(this, 'approve')">
+                                            <input type="hidden" name="admin_note" value="">
+                                            <button class="btn btn-success btn-sm">✅ Accept</button>
+                                        </form>
+                                        <!-- Decline (opens mini note popup) -->
+                                        <button class="btn btn-danger btn-sm"
+                                                onclick="openDeclineModal({{ r.id }}, '{{ r.name }}')">
+                                            ❌ Decline
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                        <span class="text-muted" style="font-size:.78rem;">No action needed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Decline with note modal ── -->
+<div class="modal fade" id="declineModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white py-2">
+                <h6 class="modal-title mb-0">❌ Decline Reservation</h6>
+                <button class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="declineForm">
+                <div class="modal-body pb-2">
+                    <p class="mb-2" style="font-size:.87rem;">
+                        Declining reservation for <strong id="declineStudentName"></strong>.
+                    </p>
+                    <label class="form-label" style="font-size:.82rem; font-weight:600;">
+                        Reason / Note <span class="text-muted fw-normal">(optional)</span>
+                    </label>
+                    <textarea name="admin_note" class="form-control form-control-sm"
+                              rows="3" placeholder="e.g. Lab fully booked for that date…"
+                              maxlength="200"></textarea>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-danger">Confirm Decline</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FEEDBACK REPORTS MODAL
+══════════════════════════════════════════ -->
+<div class="modal fade" id="feedbackReportsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#5e3a8c; color:white;">
+                <h5 class="modal-title">
+                    💬 Feedback Reports
+                    <span class="badge bg-light text-dark ms-2" style="font-size:.8rem;">
+                        Avg Rating: {{ avg_rating }} ★
+                    </span>
+                </h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Filter bar -->
+                <div class="report-filter-bar d-flex flex-wrap gap-2 align-items-end mb-3">
+                    <div>
+                        <label class="form-label mb-1" style="font-size:.82rem; font-weight:600;">Filter by Lab</label>
+                        <select id="fbLabFilter" class="form-control form-control-sm" style="width:130px;">
+                            <option value="">All Labs</option>
+                            {% for room in rooms %}
+                            <option>{{ room.room_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label mb-1" style="font-size:.82rem; font-weight:600;">Min Rating</label>
+                        <select id="fbRatingFilter" class="form-control form-control-sm" style="width:110px;">
+                            <option value="">All</option>
+                            <option value="5">★★★★★ 5</option>
+                            <option value="4">★★★★ 4+</option>
+                            <option value="3">★★★ 3+</option>
+                            <option value="2">★★ 2+</option>
+                            <option value="1">★ 1+</option>
+                        </select>
+                    </div>
+                    <div class="ms-auto">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearFbFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                {% if feedback_reports %}
+                <div class="table-responsive">
+                    <table id="feedbackReportsTable" class="table table-bordered table-hover w-100 align-middle" style="font-size:.87rem;">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Lab</th>
+                                <th>Purpose</th>
+                                <th>Rating</th>
+                                <th>Feedback</th>
+                                <th>Submitted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fb in feedback_reports %}
+                            <tr>
+                                <td class="text-muted">{{ loop.index }}</td>
+                                <td>{{ fb.student_id }}</td>
+                                <td>{{ fb.name }}</td>
+                                <td><strong>Lab {{ fb.lab }}</strong></td>
+                                <td>{{ fb.purpose }}</td>
+                                <td>
+                                    <span style="color:#f5a623; font-size:1.05rem; letter-spacing:1px;">
+                                        {% for i in range(fb.rating) %}★{% endfor %}{% for i in range(5 - fb.rating) %}<span style="color:#ddd;">★</span>{% endfor %}
+                                    </span>
+                                    <span class="text-muted ms-1" style="font-size:.78rem;">({{ fb.rating }}/5)</span>
+                                </td>
+                                <td style="max-width:280px; white-space:normal; font-size:.82rem;">
+                                    {{ fb.feedback_text }}
+                                </td>
+                                <td style="font-size:.78rem; color:#666; white-space:nowrap;">
+                                    {{ (fb.submitted_at | string)[:16] }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <p style="font-size:2rem;">💬</p>
+                    <p class="mb-0">No feedback submitted yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -243,17 +445,17 @@
                     <tbody>
                         {% for s in students %}
                         <tr>
-                            <td>{{s.student_id}}</td>
-                            <td>{{s.first_name}} {{s.middle_name}} {{s.last_name}}</td>
-                            <td>{{s.course_level}}</td>
-                            <td>{{s.course}}</td>
-                            <td>{{s.remaining_session if s.remaining_session else 30}}</td>
+                            <td>{{ s.student_id }}</td>
+                            <td>{{ s.first_name }} {{ s.middle_name }} {{ s.last_name }}</td>
+                            <td>{{ s.course_level }}</td>
+                            <td>{{ s.course }}</td>
+                            <td>{{ s.remaining_session if s.remaining_session else 30 }}</td>
                             <td>
                                 <button class="btn btn-purple btn-sm"
-                                        onclick="openEditModal('{{s.student_id}}','{{s.first_name}}','{{s.last_name}}','{{s.course}}','{{s.course_level}}','{{s.email}}')">
+                                        onclick="openEditModal('{{ s.student_id }}','{{ s.first_name }}','{{ s.last_name }}','{{ s.course }}','{{ s.course_level }}','{{ s.email }}')">
                                     Edit
                                 </button>
-                                <form method="POST" action="/delete_student/{{s.student_id}}" class="d-inline"
+                                <form method="POST" action="/delete_student/{{ s.student_id }}" class="d-inline"
                                       onsubmit="return confirm('Delete this student?')">
                                     <button class="btn btn-danger btn-sm">Delete</button>
                                 </form>
@@ -279,10 +481,8 @@
                 <form method="POST" action="/sitin" id="sitInForm">
                     <label for="sitInIdNumber">ID Number</label>
                     <input id="sitInIdNumber" name="id_number" class="form-control mb-2" required>
-
                     <label for="sitInStudentName">Student Name</label>
                     <input id="sitInStudentName" name="student_name" class="form-control mb-2" readonly>
-
                     <label for="sitInPurpose">Purpose</label>
                     <select id="sitInPurpose" name="purpose" class="form-control mb-2" required>
                         <option value="">Select</option>
@@ -291,7 +491,6 @@
                         <option>C#</option>
                         <option>PHP</option>
                     </select>
-
                     <label for="sitInLab">Lab</label>
                     <select id="sitInLab" name="lab" class="form-control mb-2" required>
                         <option value="">Select</option>
@@ -299,7 +498,6 @@
                         <option>{{ room.room_number }}</option>
                         {% endfor %}
                     </select>
-
                     <label for="sitInRemainingSession">Remaining</label>
                     <input id="sitInRemainingSession" name="remaining_session" class="form-control mb-2" readonly>
                 </form>
@@ -337,16 +535,16 @@
                     <tbody>
                         {% for s in sitin_records %}
                         <tr>
-                            <td>{{s.id}}</td>
-                            <td>{{s.student_id}}</td>
-                            <td>{{s.name}}</td>
-                            <td>{{s.purpose}}</td>
-                            <td>{{s.lab}}</td>
-                            <td>{{s.session if s.session else s.time_in}}</td>
-                            <td>{{s.status}}</td>
+                            <td>{{ s.id }}</td>
+                            <td>{{ s.student_id }}</td>
+                            <td>{{ s.name }}</td>
+                            <td>{{ s.purpose }}</td>
+                            <td>{{ s.lab }}</td>
+                            <td>{{ s.session if s.session else s.time_in }}</td>
+                            <td>{{ s.status }}</td>
                             <td>
                                 {% if s.status == 'IN' %}
-                                <form method="POST" action="/timeout/{{s.id}}" class="d-inline">
+                                <form method="POST" action="/timeout/{{ s.id }}" class="d-inline">
                                     <button class="btn btn-danger btn-sm">OUT</button>
                                 </form>
                                 {% else %}
@@ -362,7 +560,7 @@
     </div>
 </div>
 
-<!-- ── SIT-IN REPORTS MODAL ── -->
+<!-- SIT-IN REPORTS MODAL -->
 <div class="modal fade" id="sitInReportsModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -371,15 +569,13 @@
                 <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-
-                <!-- Filter Bar -->
                 <div class="report-filter-bar d-flex flex-wrap gap-2 align-items-end">
                     <div>
-                        <label class="form-label mb-1" style="font-size:0.82rem; font-weight:600;">Filter by Date</label>
+                        <label class="form-label mb-1" style="font-size:.82rem; font-weight:600;">Filter by Date</label>
                         <input type="date" id="reportDateFilter" class="form-control form-control-sm" style="width:160px;">
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:0.82rem; font-weight:600;">Filter by Lab</label>
+                        <label class="form-label mb-1" style="font-size:.82rem; font-weight:600;">Filter by Lab</label>
                         <select id="reportLabFilter" class="form-control form-control-sm" style="width:130px;">
                             <option value="">All Labs</option>
                             {% for room in rooms %}
@@ -388,7 +584,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:0.82rem; font-weight:600;">Filter by Status</label>
+                        <label class="form-label mb-1" style="font-size:.82rem; font-weight:600;">Filter by Status</label>
                         <select id="reportStatusFilter" class="form-control form-control-sm" style="width:120px;">
                             <option value="">All</option>
                             <option value="IN">Still In</option>
@@ -400,8 +596,6 @@
                         <a href="/export_sitin_report" class="btn btn-sm btn-purple">⬇ Export CSV</a>
                     </div>
                 </div>
-
-                <!-- Table -->
                 <div class="table-responsive">
                     <table id="sitInReportsTable" class="table table-bordered table-hover w-100 align-middle">
                         <thead class="table-dark">
@@ -419,51 +613,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for r in sitin_reports %}
+                            {% for r in sitin_records %}
                             <tr>
-                                <td class="text-muted" style="font-size:0.82rem;">{{ loop.index }}</td>
+                                <td class="text-muted" style="font-size:.82rem;">{{ loop.index }}</td>
                                 <td>{{ r.student_id }}</td>
                                 <td>{{ r.name }}</td>
                                 <td>{{ r.purpose }}</td>
                                 <td><strong>Lab {{ r.lab }}</strong></td>
-
-                                <!-- Date -->
-                                <td>
-                                    <span class="report-date">
-                                        {{ r.date if r.date else (r.time_in | string)[:10] }}
-                                    </span>
-                                </td>
-
-                                <!-- Time In -->
-                                <td>
-                                    <span class="report-time-in">
-                                        🟢 {{ r.time_in_only if r.time_in_only else (r.time_in | string)[11:16] }}
-                                    </span>
-                                </td>
-
-                                <!-- Time Out -->
+                                <td><span class="report-date">{{ (r.time_in | string)[:10] }}</span></td>
+                                <td><span class="report-time-in">🟢 {{ (r.time_in | string)[11:16] }}</span></td>
                                 <td>
                                     {% if r.time_out %}
-                                        <span class="report-time-out">
-                                            🔴 {{ r.time_out_only if r.time_out_only else (r.time_out | string)[11:16] }}
-                                        </span>
+                                        <span class="report-time-out">🔴 {{ (r.time_out | string)[11:16] }}</span>
                                     {% else %}
                                         <span class="report-still-in">● Still Inside</span>
                                     {% endif %}
                                 </td>
-
-                                <!-- Duration -->
                                 <td>
-                                    {% if r.duration %}
-                                        <span class="duration-badge">{{ r.duration }}</span>
-                                    {% elif r.time_out %}
+                                    {% if r.time_out %}
                                         <span class="duration-badge" data-timein="{{ r.time_in }}" data-timeout="{{ r.time_out }}">—</span>
                                     {% else %}
-                                        <span class="text-muted" style="font-size:0.78rem;">ongoing</span>
+                                        <span class="text-muted" style="font-size:.78rem;">ongoing</span>
                                     {% endif %}
                                 </td>
-
-                                <!-- Status -->
                                 <td>
                                     {% if r.status == 'IN' %}
                                         <span class="status-in-badge">IN</span>
@@ -635,77 +807,76 @@ function togglePw(inputId, btn) {
 
 // ── Auto-open Students modal after search ──
 const openSearch = {{ (open_search | default(false)) | tojson }};
-if (openSearch) {
-    new bootstrap.Modal(document.getElementById('studentsModal')).show();
-}
+if (openSearch) new bootstrap.Modal(document.getElementById('studentsModal')).show();
 
-// ── DataTables init ──
+// ── DataTables ──
 let reportsTable = null;
+let resTable = null;
+let fbTable  = null;
 
 $('#studentsModal').on('shown.bs.modal', function () {
-    if (!$.fn.DataTable.isDataTable('#studentListTable')) {
+    if (!$.fn.DataTable.isDataTable('#studentListTable'))
         $('#studentListTable').DataTable({ pageLength: 10 });
-    }
 });
 $('#recordsModal').on('shown.bs.modal', function () {
-    if (!$.fn.DataTable.isDataTable('#sitInRecordTable')) {
+    if (!$.fn.DataTable.isDataTable('#sitInRecordTable'))
         $('#sitInRecordTable').DataTable({ pageLength: 10 });
-    }
 });
 $('#sitInReportsModal').on('shown.bs.modal', function () {
     if (!$.fn.DataTable.isDataTable('#sitInReportsTable')) {
         reportsTable = $('#sitInReportsTable').DataTable({
             pageLength: 15,
-            order: [[5, 'desc'], [6, 'desc']], // Sort by date desc, then time in desc
-            columnDefs: [
-                { orderable: false, targets: [] }
-            ]
+            order: [[5, 'desc'], [6, 'desc']]
         });
     }
-    // Auto-compute duration for rows that don't have it
     computeDurations();
 });
+$('#feedbackReportsModal').on('shown.bs.modal', function () {
+    if (!$.fn.DataTable.isDataTable('#feedbackReportsTable')) {
+        fbTable = $('#feedbackReportsTable').DataTable({
+            pageLength: 15,
+            order: [[7, 'desc']]
+        });
+    }
+});
+$('#reservationsModal').on('shown.bs.modal', function () {
+    if (!$.fn.DataTable.isDataTable('#reservationsTable')) {
+        resTable = $('#reservationsTable').DataTable({
+            pageLength: 15,
+            order: [[7, 'desc']]  // Sort by submitted date desc
+        });
+    }
+});
 
-// ── Compute durations client-side where missing ──
+// ── Compute durations client-side ──
 function computeDurations() {
     document.querySelectorAll('.duration-badge[data-timein]').forEach(function(el) {
-        const tin = new Date(el.dataset.timein);
+        const tin  = new Date(el.dataset.timein);
         const tout = new Date(el.dataset.timeout);
         if (!isNaN(tin) && !isNaN(tout)) {
-            const diffMs = tout - tin;
-            const mins = Math.floor(diffMs / 60000);
-            const hrs = Math.floor(mins / 60);
-            const remaining = mins % 60;
-            el.textContent = hrs > 0 ? `${hrs}h ${remaining}m` : `${mins}m`;
+            const mins = Math.floor((tout - tin) / 60000);
+            const hrs  = Math.floor(mins / 60);
+            el.textContent = hrs > 0 ? `${hrs}h ${mins % 60}m` : `${mins}m`;
         }
     });
 }
 
-// ── Report Filters ──
+// ── Sit-in report filters ──
 function applyReportFilters() {
     if (!reportsTable) return;
-    const dateVal = document.getElementById('reportDateFilter').value;
-    const labVal  = document.getElementById('reportLabFilter').value.toLowerCase();
+    const dateVal   = document.getElementById('reportDateFilter').value;
+    const labVal    = document.getElementById('reportLabFilter').value.toLowerCase();
     const statusVal = document.getElementById('reportStatusFilter').value.toUpperCase();
-
-    // Custom search via DataTables API
     $.fn.dataTable.ext.search = [];
-
     $.fn.dataTable.ext.search.push(function(settings, data) {
         if (settings.nTable.id !== 'sitInReportsTable') return true;
-        const rowDate   = data[5].trim();   // Date column
-        const rowLab    = data[4].toLowerCase();
-        const rowStatus = data[9].toUpperCase();
-
-        if (dateVal && !rowDate.includes(dateVal)) return false;
-        if (labVal  && !rowLab.includes(labVal))   return false;
-        if (statusVal && !rowStatus.includes(statusVal)) return false;
+        if (dateVal   && !data[5].trim().includes(dateVal)) return false;
+        if (labVal    && !data[4].toLowerCase().includes(labVal)) return false;
+        if (statusVal && !data[9].toUpperCase().includes(statusVal)) return false;
         return true;
     });
-
     reportsTable.draw();
 }
-
 function clearReportFilters() {
     document.getElementById('reportDateFilter').value = '';
     document.getElementById('reportLabFilter').value = '';
@@ -713,15 +884,60 @@ function clearReportFilters() {
     $.fn.dataTable.ext.search = [];
     if (reportsTable) reportsTable.draw();
 }
-
 document.getElementById('reportDateFilter').addEventListener('change', applyReportFilters);
 document.getElementById('reportLabFilter').addEventListener('change', applyReportFilters);
 document.getElementById('reportStatusFilter').addEventListener('change', applyReportFilters);
 
+// ── Feedback filters ──
+function applyFbFilters() {
+    if (!fbTable) return;
+    const labVal    = document.getElementById('fbLabFilter').value.toLowerCase();
+    const ratingVal = parseInt(document.getElementById('fbRatingFilter').value) || 0;
+    $.fn.dataTable.ext.search.push(function(settings, data) {
+        if (settings.nTable.id !== 'feedbackReportsTable') return true;
+        if (labVal   && !data[3].toLowerCase().includes(labVal)) return false;
+        if (ratingVal) {
+            const r = parseInt(data[5].replace(/[^0-9]/g, '')) || 0;
+            if (r < ratingVal) return false;
+        }
+        return true;
+    });
+    fbTable.draw();
+}
+function clearFbFilters() {
+    document.getElementById('fbLabFilter').value   = '';
+    document.getElementById('fbRatingFilter').value = '';
+    $.fn.dataTable.ext.search = [];
+    if (fbTable) fbTable.draw();
+}
+document.getElementById('fbLabFilter').addEventListener('change', applyFbFilters);
+document.getElementById('fbRatingFilter').addEventListener('change', applyFbFilters);
+
+// ── Reservation filters ──
+function applyResFilters() {
+    if (!resTable) return;
+    const statusVal = document.getElementById('resStatusFilter').value.toUpperCase();
+    const labVal    = document.getElementById('resLabFilter').value.toLowerCase();
+    $.fn.dataTable.ext.search.push(function(settings, data) {
+        if (settings.nTable.id !== 'reservationsTable') return true;
+        if (statusVal && !data[8].toUpperCase().includes(statusVal)) return false;
+        if (labVal    && !data[3].toLowerCase().includes(labVal)) return false;
+        return true;
+    });
+    resTable.draw();
+}
+function clearResFilters() {
+    document.getElementById('resStatusFilter').value = '';
+    document.getElementById('resLabFilter').value = '';
+    $.fn.dataTable.ext.search = [];
+    if (resTable) resTable.draw();
+}
+document.getElementById('resStatusFilter').addEventListener('change', applyResFilters);
+document.getElementById('resLabFilter').addEventListener('change', applyResFilters);
+
 // ── Bar chart ──
 var chartLabels = {{ purposes | tojson }};
 var chartData   = {{ purpose_counts | tojson }};
-
 new Chart(document.getElementById('statsChart'), {
     type: 'bar',
     data: {
@@ -729,30 +945,17 @@ new Chart(document.getElementById('statsChart'), {
         datasets: [{
             label: 'Total Sit-ins',
             data: chartData,
-            backgroundColor: [
-                'rgba(94, 58, 140, 0.8)',
-                'rgba(13, 110, 253, 0.8)',
-                'rgba(25, 135, 84, 0.8)',
-                'rgba(255, 193, 7, 0.8)'
-            ],
-            borderColor: [
-                'rgba(94, 58, 140, 1)',
-                'rgba(13, 110, 253, 1)',
-                'rgba(25, 135, 84, 1)',
-                'rgba(255, 193, 7, 1)'
-            ],
+            backgroundColor: ['rgba(94,58,140,.8)','rgba(13,110,253,.8)','rgba(25,135,84,.8)','rgba(255,193,7,.8)'],
+            borderColor:      ['rgba(94,58,140,1)', 'rgba(13,110,253,1)', 'rgba(25,135,84,1)', 'rgba(255,193,7,1)'],
             borderWidth: 2, borderRadius: 6
         }]
     },
     options: {
         responsive: true,
-        plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + ' sit-ins' } }
-        },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + ' sit-ins' } } },
         scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, title: { display: true, text: 'Number of Sit-ins' } },
-            x: { title: { display: true, text: 'Purpose' } }
+            y: { beginAtZero: true, ticks: { stepSize:1, precision:0 }, title: { display:true, text:'Number of Sit-ins' } },
+            x: { title: { display:true, text:'Purpose' } }
         }
     }
 });
@@ -783,6 +986,18 @@ function openEditModal(id, firstName, lastName, course, courseLevel, email) {
     new bootstrap.Modal(document.getElementById('editStudentModal')).show();
 }
 
+// ── Reservation actions ──
+function confirmAction(form, type) {
+    // just let it submit immediately for Accept; decline has its own modal
+    return true;
+}
+
+function openDeclineModal(resId, studentName) {
+    document.getElementById('declineStudentName').textContent = studentName;
+    document.getElementById('declineForm').action = `/admin_reservation_action/${resId}/decline`;
+    new bootstrap.Modal(document.getElementById('declineModal')).show();
+}
+
 // ── Profile Pic ──
 function previewUpload(event) {
     const file = event.target.files[0];
@@ -797,14 +1012,14 @@ function previewUpload(event) {
 }
 function showPreviewImage(src) {
     const placeholder = document.getElementById('profilePicPlaceholder');
-    const preview = document.getElementById('profilePicPreview');
+    const preview     = document.getElementById('profilePicPreview');
     if (placeholder) placeholder.style.display = 'none';
     preview.src = src; preview.style.display = 'block';
     document.getElementById('removePhotoBtn').style.display = 'inline-block';
 }
 function removePhoto() {
     const placeholder = document.getElementById('profilePicPlaceholder');
-    const preview = document.getElementById('profilePicPreview');
+    const preview     = document.getElementById('profilePicPreview');
     preview.style.display = 'none'; preview.src = '';
     if (placeholder) placeholder.style.display = 'flex';
     document.getElementById('profilePicInput').value = '';
@@ -851,6 +1066,5 @@ flashMessages.forEach(function(msg) {
     });
 });
 </script>
-
 </body>
 </html>

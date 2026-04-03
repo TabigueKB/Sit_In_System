@@ -83,7 +83,38 @@ def init_db():
     )
     """)
 
-    rooms = [('524', 30), ('526', 30), ('528', 30)]
+    # ── NEW: Reservations table ──
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS reservations(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id TEXT,
+        name TEXT,
+        purpose TEXT,
+        lab TEXT,
+        date TEXT,
+        time_slot TEXT,
+        status TEXT DEFAULT 'PENDING',
+        admin_note TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # ── NEW: Feedback table ──
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS feedback(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sitin_id INTEGER UNIQUE,
+        student_id TEXT,
+        name TEXT,
+        lab TEXT,
+        purpose TEXT,
+        rating INTEGER,
+        feedback_text TEXT,
+        submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    rooms = [('524', 30), ('525', 30), ('526', 30), ('527', 30), ('528', 30), ('529', 30), ('530', 30), ('530A', 30), ('530B', 30), ('530C', 30)]
     for r in rooms:
         conn.execute("INSERT OR IGNORE INTO rooms (room_number, capacity) VALUES (?, ?)", r)
 
@@ -99,6 +130,7 @@ def init_db():
         "ALTER TABLE users ADD COLUMN remaining_session INTEGER DEFAULT 30",
         "ALTER TABLE sitin_records ADD COLUMN session INTEGER DEFAULT 30",
         "ALTER TABLE users ADD COLUMN profile_pic TEXT",
+        "ALTER TABLE reservations ADD COLUMN admin_note TEXT",
     ]
     for sql in migrations:
         try:
@@ -115,12 +147,6 @@ init_db()
 # HELPER: Save profile picture
 # =========================
 def save_profile_pic(file=None, base64_data=None, old_pic=None):
-    """
-    Saves a profile pic from an uploaded file or base64 string.
-    Deletes the old pic if it exists.
-    Returns the filename (relative to static/uploads/).
-    """
-    # Delete old picture if it exists
     if old_pic:
         old_path = os.path.join(UPLOAD_FOLDER, old_pic)
         if os.path.exists(old_path):
@@ -137,7 +163,6 @@ def save_profile_pic(file=None, base64_data=None, old_pic=None):
         file.save(os.path.join(UPLOAD_FOLDER, filename))
 
     elif base64_data and base64_data.startswith("data:image"):
-        # Strip the data URL prefix: data:image/jpeg;base64,<data>
         try:
             header, encoded = base64_data.split(",", 1)
             ext = header.split("/")[1].split(";")[0]
@@ -191,7 +216,6 @@ def get_admin_data(search=None):
 
     rooms = conn.execute("SELECT * FROM rooms ORDER BY room_number").fetchall()
 
-    # Real counts per purpose for bar chart
     purpose_rows = conn.execute("""
         SELECT purpose, COUNT(*) as count
         FROM sitin_records
@@ -200,6 +224,27 @@ def get_admin_data(search=None):
     purpose_map = {row["purpose"]: row["count"] for row in purpose_rows}
     purposes = ["C Programming", "Java", "C#", "PHP"]
     purpose_counts = [purpose_map.get(p, 0) for p in purposes]
+
+    # ── Reservations ──
+    reservations = conn.execute("""
+        SELECT * FROM reservations ORDER BY created_at DESC
+    """).fetchall()
+
+    pending_reservations_count = conn.execute(
+        "SELECT COUNT(*) FROM reservations WHERE status='PENDING'"
+    ).fetchone()[0]
+
+    # ── Feedback reports ──
+    feedback_reports = conn.execute("""
+        SELECT f.*, s.time_in, s.time_out
+        FROM feedback f
+        LEFT JOIN sitin_records s ON s.id = f.sitin_id
+        ORDER BY f.submitted_at DESC
+    """).fetchall()
+
+    avg_rating = conn.execute(
+        "SELECT ROUND(AVG(rating), 2) FROM feedback"
+    ).fetchone()[0] or 0
 
     conn.close()
 
@@ -213,7 +258,11 @@ def get_admin_data(search=None):
         rooms=rooms,
         purposes=purposes,
         purpose_counts=purpose_counts,
-        search=search or ""
+        search=search or "",
+        reservations=reservations,
+        pending_reservations_count=pending_reservations_count,
+        feedback_reports=feedback_reports,
+        avg_rating=avg_rating,
     )
 
 # =========================
@@ -286,6 +335,31 @@ def dashboard():
     ).fetchone()
     remaining_session = student_data["remaining_session"] if student_data else 30
 
+    # ── Student's own reservations ──
+    my_reservations = conn.execute("""
+        SELECT * FROM reservations
+        WHERE student_id=?
+        ORDER BY created_at DESC
+    """, (user["student_id"],)).fetchall()
+
+    # Check if student already has a pending reservation
+    pending_reservation = conn.execute("""
+        SELECT * FROM reservations
+        WHERE student_id=? AND status='PENDING'
+        LIMIT 1
+    """, (user["student_id"],)).fetchone()
+
+    # ── Recent sit-in sessions with has_feedback flag ──
+    recent_rows = conn.execute("""
+        SELECT s.*,
+               CASE WHEN f.id IS NOT NULL THEN 1 ELSE 0 END AS has_feedback
+        FROM sitin_records s
+        LEFT JOIN feedback f ON f.sitin_id = s.id
+        WHERE s.student_id=?
+        ORDER BY s.time_in DESC
+        LIMIT 20
+    """, (user["student_id"],)).fetchall()
+
     conn.close()
 
     return render_template("dashboard.html",
@@ -293,10 +367,13 @@ def dashboard():
                            active_sitin=active_sitin,
                            labs=labs,
                            announcements=announcements,
-                           remaining_session=remaining_session)
+                           remaining_session=remaining_session,
+                           my_reservations=my_reservations,
+                           pending_reservation=pending_reservation,
+                           recent_sessions=recent_rows)
 
 # =========================
-# SEARCH STUDENT — no separate template needed
+# SEARCH STUDENT
 # =========================
 @app.route("/search_student")
 def search_student():
@@ -309,7 +386,6 @@ def search_student():
     conn.close()
 
     data = get_admin_data(search=search)
-    # open students modal automatically via flag
     return render_template("admin_dashboard.html", user=user, open_search=True, **data)
 
 # =========================
@@ -334,7 +410,7 @@ def get_student_info():
     return jsonify({"success": False})
 
 # =========================
-# SIT-IN
+# SIT-IN (admin)
 # =========================
 @app.route("/sitin", methods=["POST"])
 def sitin():
@@ -369,7 +445,7 @@ def sitin():
     return redirect("/dashboard")
 
 # =========================
-# TIME OUT
+# TIME OUT (admin)
 # =========================
 @app.route("/timeout/<int:id>", methods=["POST"])
 def timeout(id):
@@ -403,7 +479,6 @@ def register_user():
         request.form["password"]
     )
 
-    # Redirect back to dashboard if admin, otherwise to register/login page
     is_admin = session.get("is_admin", False)
     redirect_on_error   = "/dashboard" if is_admin else "/register"
     redirect_on_success = "/dashboard" if is_admin else "/"
@@ -504,7 +579,6 @@ def student_sitin():
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE id=?", (session["user_id"],)).fetchone()
 
-    # Block if already sitting in
     existing = conn.execute("""
         SELECT * FROM sitin_records WHERE student_id=? AND status='IN'
     """, (user["student_id"],)).fetchone()
@@ -513,7 +587,6 @@ def student_sitin():
         conn.close()
         return redirect("/dashboard")
 
-    # Block if no sessions left
     if user["remaining_session"] <= 0:
         conn.close()
         return redirect("/dashboard")
@@ -527,7 +600,6 @@ def student_sitin():
         VALUES (?, ?, ?, ?, ?)
     """, (user["student_id"], name, purpose, lab, user["remaining_session"]))
 
-    # Deduct one session
     conn.execute("""
         UPDATE users SET remaining_session = remaining_session - 1 WHERE id=?
     """, (session["user_id"],))
@@ -555,7 +627,7 @@ def student_timeout(id):
     return redirect("/dashboard")
 
 # =========================
-# UPDATE PROFILE  (now handles profile picture)
+# UPDATE PROFILE
 # =========================
 @app.route("/update_profile", methods=["POST"])
 def update_profile():
@@ -574,10 +646,9 @@ def update_profile():
     user = conn.execute("SELECT * FROM users WHERE id=?", (session["user_id"],)).fetchone()
     old_pic = user["profile_pic"] if user else None
 
-    new_pic = old_pic  # default: keep existing
+    new_pic = old_pic
 
     if remove_pic:
-        # Delete old file and clear DB field
         if old_pic:
             old_path = os.path.join(UPLOAD_FOLDER, old_pic)
             if os.path.exists(old_path):
@@ -588,11 +659,9 @@ def update_profile():
         new_pic = None
 
     elif captured_data:
-        # Photo was taken via camera (base64)
         new_pic = save_profile_pic(base64_data=captured_data, old_pic=old_pic)
 
     elif uploaded_file and uploaded_file.filename:
-        # Photo was uploaded from file system
         new_pic = save_profile_pic(file=uploaded_file, old_pic=old_pic)
 
     conn.execute("""
@@ -604,6 +673,188 @@ def update_profile():
     conn.close()
     flash("Profile updated successfully!", "success")
     return redirect("/dashboard")
+
+# =========================
+# ── RESERVATIONS ──
+# =========================
+
+@app.route("/reserve_sitin", methods=["POST"])
+def reserve_sitin():
+    """Student submits a reservation request."""
+    if "user_id" not in session or session.get("is_admin"):
+        return redirect("/")
+
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE id=?", (session["user_id"],)).fetchone()
+
+    # Block if already has a pending reservation
+    existing_pending = conn.execute("""
+        SELECT * FROM reservations WHERE student_id=? AND status='PENDING'
+    """, (user["student_id"],)).fetchone()
+
+    if existing_pending:
+        flash("You already have a pending reservation. Please wait for admin approval.", "warning")
+        conn.close()
+        return redirect("/dashboard")
+
+    # Block if already sitting in
+    active_sitin = conn.execute("""
+        SELECT * FROM sitin_records WHERE student_id=? AND status='IN'
+    """, (user["student_id"],)).fetchone()
+
+    if active_sitin:
+        flash("You are currently sitting in. Time out first before making a reservation.", "warning")
+        conn.close()
+        return redirect("/dashboard")
+
+    if user["remaining_session"] <= 0:
+        flash("You have no remaining sessions.", "error")
+        conn.close()
+        return redirect("/dashboard")
+
+    lab     = request.form["lab"]
+    purpose = request.form["purpose"]
+    date    = request.form["date"]
+    time_slot = request.form["time_slot"]
+    name    = f"{user['first_name']} {user['last_name']}"
+
+    conn.execute("""
+        INSERT INTO reservations (student_id, name, purpose, lab, date, time_slot)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (user["student_id"], name, purpose, lab, date, time_slot))
+    conn.commit()
+    conn.close()
+    flash("Reservation submitted! Please wait for admin approval.", "success")
+    return redirect("/dashboard")
+
+
+@app.route("/cancel_reservation/<int:res_id>", methods=["POST"])
+def cancel_reservation(res_id):
+    """Student cancels their own pending reservation."""
+    if "user_id" not in session or session.get("is_admin"):
+        return redirect("/")
+
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE id=?", (session["user_id"],)).fetchone()
+    conn.execute("""
+        UPDATE reservations SET status='CANCELLED'
+        WHERE id=? AND student_id=? AND status='PENDING'
+    """, (res_id, user["student_id"]))
+    conn.commit()
+    conn.close()
+    flash("Reservation cancelled.", "info")
+    return redirect("/dashboard")
+
+
+@app.route("/admin_reservation_action/<int:res_id>/<action>", methods=["POST"])
+def admin_reservation_action(res_id, action):
+    """Admin accepts or declines a reservation."""
+    if not session.get("is_admin"):
+        return redirect("/")
+
+    if action not in ("accept", "decline"):
+        return redirect("/dashboard")
+
+    admin_note = request.form.get("admin_note", "").strip()
+    new_status = "APPROVED" if action == "accept" else "DECLINED"
+
+    conn = get_db()
+
+    if action == "accept":
+        # Fetch reservation details to auto-create a sit-in record
+        res = conn.execute("SELECT * FROM reservations WHERE id=?", (res_id,)).fetchone()
+        if res and res["status"] == "PENDING":
+            # Check student still has sessions
+            student = conn.execute(
+                "SELECT * FROM users WHERE student_id=?", (res["student_id"],)
+            ).fetchone()
+
+            # Check not already sitting in
+            existing = conn.execute("""
+                SELECT * FROM sitin_records WHERE student_id=? AND status='IN'
+            """, (res["student_id"],)).fetchone()
+
+            if existing:
+                flash("Student is already sitting in — cannot approve reservation.", "error")
+                conn.close()
+                return redirect("/dashboard")
+
+            remaining = student["remaining_session"] if student else 30
+
+            conn.execute("""
+                INSERT INTO sitin_records (student_id, name, purpose, lab, session)
+                VALUES (?, ?, ?, ?, ?)
+            """, (res["student_id"], res["name"], res["purpose"], res["lab"], remaining))
+
+            # Deduct one session
+            conn.execute("""
+                UPDATE users SET remaining_session = remaining_session - 1
+                WHERE student_id=?
+            """, (res["student_id"],))
+
+    conn.execute("""
+        UPDATE reservations SET status=?, admin_note=? WHERE id=?
+    """, (new_status, admin_note, res_id))
+
+    conn.commit()
+    conn.close()
+
+    msg = "Reservation approved — sit-in created!" if action == "accept" else "Reservation declined."
+    flash(msg, "success" if action == "accept" else "warning")
+    return redirect("/dashboard")
+
+
+# =========================
+# SUBMIT FEEDBACK
+# =========================
+@app.route("/submit_feedback", methods=["POST"])
+def submit_feedback():
+    if "user_id" not in session or session.get("is_admin"):
+        return redirect("/")
+
+    sitin_id    = request.form.get("sitin_id", "").strip()
+    rating      = request.form.get("rating", "").strip()
+    feedback_text = request.form.get("feedback_text", "").strip()
+
+    if not sitin_id or not rating or not feedback_text:
+        flash("Please complete the feedback form.", "warning")
+        return redirect("/dashboard")
+
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE id=?", (session["user_id"],)).fetchone()
+
+    # Make sure the sitin record belongs to this student and is finished
+    record = conn.execute("""
+        SELECT * FROM sitin_records
+        WHERE id=? AND student_id=? AND status='OUT'
+    """, (sitin_id, user["student_id"])).fetchone()
+
+    if not record:
+        flash("Cannot submit feedback for this session.", "error")
+        conn.close()
+        return redirect("/dashboard")
+
+    # Prevent duplicate feedback
+    existing = conn.execute(
+        "SELECT id FROM feedback WHERE sitin_id=?", (sitin_id,)
+    ).fetchone()
+
+    if existing:
+        flash("Feedback already submitted for this session.", "warning")
+        conn.close()
+        return redirect("/dashboard")
+
+    name = f"{user['first_name']} {user['last_name']}"
+    conn.execute("""
+        INSERT INTO feedback (sitin_id, student_id, name, lab, purpose, rating, feedback_text)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (sitin_id, user["student_id"], name, record["lab"], record["purpose"],
+          int(rating), feedback_text))
+    conn.commit()
+    conn.close()
+    flash("Thank you for your feedback!", "success")
+    return redirect("/dashboard")
+
 
 # =========================
 # LOGOUT
