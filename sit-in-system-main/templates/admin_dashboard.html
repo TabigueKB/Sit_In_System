@@ -19,6 +19,88 @@
         .btn-submit { background-color: #198754; color: white; }
         .btn-sitin  { background-color: #0d6efd; color: white; }
 
+        .modal-content {
+            border-radius: 24px;
+            border: 1px solid rgba(94,58,140,0.16);
+            box-shadow: 0 20px 40px rgba(94,58,140,0.12);
+            overflow: hidden;
+        }
+        .modal-header {
+            border-bottom: none;
+            padding-bottom: 1rem;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            border-top: none;
+            padding: 1rem 1.5rem 1.5rem;
+        }
+        .modal-title { font-weight: 700; }
+
+        .table-responsive {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #e7def7;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8);
+        }
+        .table {
+            background: #fff;
+            margin-bottom: 0;
+        }
+        .table th,
+        .table td {
+            vertical-align: middle;
+            padding: 14px 16px;
+            border-top: 1px solid #f2eaf8;
+        }
+        .table thead th {
+            background: #5e3a8c;
+            color: white;
+            border-bottom: none;
+            border-top: none;
+        }
+        .table tbody tr {
+            background: #fff;
+        }
+        .table-hover tbody tr:hover {
+            background: #f8f5ff;
+        }
+        .table td {
+            color: #4f4378;
+        }
+        .table .text-muted {
+            color: #7a6a91 !important;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            border: 1px solid #d9cde8;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus {
+            border-color: rgba(94,58,140,0.55);
+            box-shadow: 0 0 0 0.15rem rgba(94,58,140,0.12);
+        }
+        .modal-body label {
+            font-weight: 700;
+            color: #4e3b7d;
+        }
+
+        .table .badge {
+            font-size: .8rem;
+            padding: 5px 12px;
+            border-radius: 999px;
+        }
+
+        .status-in-badge  { background-color: #cce5ff; color: #004085; }
+        .status-out-badge { background-color: #d4edda; color: #155724; }
+
+        .shadow-sm {
+            box-shadow: 0 10px 30px rgba(94,58,140,0.08) !important;
+        }
+
         /* Profile Picture Styles */
         .profile-pic-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 12px; }
         .profile-pic-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #5e3a8c; background: #f0e6ff; display: block; }
@@ -151,6 +233,86 @@
     </div>
 </div>
 
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">🖥️ PC Availability Manager</div>
+                <div class="card-body">
+                    <form method="POST" action="/save_pc_availability">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Lab</label>
+                                <select name="room_number" class="form-control" required>
+                                    <option value="">Select a lab</option>
+                                    {% for room in rooms %}
+                                    <option value="{{ room.room_number }}">Lab {{ room.room_number }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Date</label>
+                                <input id="availabilityDate" type="date" name="availability_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Time Start</label>
+                                <input type="time" name="time_start" class="form-control" placeholder="e.g. 08:00">
+                                <small class="text-muted">Optional</small>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Time End</label>
+                                <input type="time" name="time_end" class="form-control" placeholder="e.g. 12:00">
+                                <small class="text-muted">Optional</small>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Available PCs</label>
+                                <input type="text" name="available_pcs" class="form-control" placeholder="e.g. 1-7, 10, 15-20" required>
+                                <small class="text-muted">e.g. 1–50 by default</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-purple btn-sm mt-3">Save Availability</button>
+                    </form>
+
+                    {% if pc_availabilities %}
+                    <div class="table-responsive mt-4">
+                        <table class="table table-sm table-bordered align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Lab</th>
+                                    <th>Date</th>
+                                    <th>Time Window</th>
+                                    <th>Available PCs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pc_availabilities %}
+                                <tr>
+                                    <td><strong>Lab {{ item.room_number }}</strong></td>
+                                    <td>{{ item.date }}</td>
+                                    <td>
+                                        {% if item.time_start and item.time_end %}
+                                            {{ item.time_start }} – {{ item.time_end }}
+                                        {% else %}
+                                            <span class="text-muted">All day</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.available_pcs }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-muted mt-3">
+                        No PC availability schedules configured yet. Labs default to PCs 1–50 unless the admin sets a date-specific availability.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ══════════════════════════════════════════
      RESERVATIONS MODAL
 ══════════════════════════════════════════ -->
@@ -202,6 +364,7 @@
                                 <th>Student ID</th>
                                 <th>Name</th>
                                 <th>Lab</th>
+                                <th>PC</th>
                                 <th>Purpose</th>
                                 <th>Date</th>
                                 <th>Time Slot</th>
@@ -218,6 +381,7 @@
                                 <td>{{ r.student_id }}</td>
                                 <td>{{ r.name }}</td>
                                 <td><strong>Lab {{ r.lab }}</strong></td>
+                                <td><strong>PC {{ r.pc_number }}</strong></td>
                                 <td>{{ r.purpose }}</td>
                                 <td>{{ r.date }}</td>
                                 <td style="font-size:.8rem;">{{ r.time_slot }}</td>
@@ -395,17 +559,20 @@
 <!-- SEARCH MODAL -->
 <div class="modal fade" id="searchModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content p-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Search Student</h5>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Search Student</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="GET" action="/search_student">
-                <label for="searchInput">Search by ID, first name, or last name</label>
-                <input id="searchInput" name="search" class="form-control mb-3"
-                       value="{{ search }}" placeholder="e.g. 123 or Juan" required>
-                <button class="btn btn-purple w-100">Search</button>
-            </form>
+            <div class="modal-body">
+                <form method="GET" action="/search_student">
+                    <div class="mb-3">
+                        <label for="searchInput">Search by ID, first name, or last name</label>
+                        <input id="searchInput" name="search" class="form-control" value="{{ search }}" placeholder="e.g. 123 or Juan" required>
+                    </div>
+                    <button class="btn btn-purple w-100">Search</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -425,45 +592,47 @@
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-2">
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
                     <button class="btn btn-purple btn-sm" data-bs-toggle="modal" data-bs-target="#addStudentModal">Add Students</button>
                     <form method="POST" action="/reset_all_sessions" class="d-inline">
                         <button class="btn btn-secondary btn-sm" onclick="return confirm('Reset all sessions to 30?')">Reset All Session</button>
                     </form>
                 </div>
-                <table id="studentListTable" class="table table-bordered table-hover w-100">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID Number</th>
-                            <th>Name</th>
-                            <th>Year Level</th>
-                            <th>Course</th>
-                            <th>Remaining Session</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for s in students %}
-                        <tr>
-                            <td>{{ s.student_id }}</td>
-                            <td>{{ s.first_name }} {{ s.middle_name }} {{ s.last_name }}</td>
-                            <td>{{ s.course_level }}</td>
-                            <td>{{ s.course }}</td>
-                            <td>{{ s.remaining_session if s.remaining_session else 30 }}</td>
-                            <td>
-                                <button class="btn btn-purple btn-sm"
-                                        onclick="openEditModal('{{ s.student_id }}','{{ s.first_name }}','{{ s.last_name }}','{{ s.course }}','{{ s.course_level }}','{{ s.email }}')">
-                                    Edit
-                                </button>
-                                <form method="POST" action="/delete_student/{{ s.student_id }}" class="d-inline"
-                                      onsubmit="return confirm('Delete this student?')">
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="table-responsive shadow-sm rounded-4">
+                    <table id="studentListTable" class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID Number</th>
+                                <th>Name</th>
+                                <th>Year Level</th>
+                                <th>Course</th>
+                                <th>Remaining Session</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in students %}
+                            <tr>
+                                <td class="text-muted">{{ s.student_id }}</td>
+                                <td>{{ s.first_name }} {{ s.middle_name }} {{ s.last_name }}</td>
+                                <td>{{ s.course_level }}</td>
+                                <td>{{ s.course }}</td>
+                                <td>{{ s.remaining_session if s.remaining_session else 30 }}</td>
+                                <td>
+                                    <button class="btn btn-purple btn-sm"
+                                            onclick="openEditModal('{{ s.student_id }}','{{ s.first_name }}','{{ s.last_name }}','{{ s.course }}','{{ s.course_level }}','{{ s.email }}')">
+                                        Edit
+                                    </button>
+                                    <form method="POST" action="/delete_student/{{ s.student_id }}" class="d-inline"
+                                          onsubmit="return confirm('Delete this student?')">
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -474,32 +643,44 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Sit In Form</h5>
+                <h5 class="modal-title">Sit In Form</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form method="POST" action="/sitin" id="sitInForm">
-                    <label for="sitInIdNumber">ID Number</label>
-                    <input id="sitInIdNumber" name="id_number" class="form-control mb-2" required>
-                    <label for="sitInStudentName">Student Name</label>
-                    <input id="sitInStudentName" name="student_name" class="form-control mb-2" readonly>
-                    <label for="sitInPurpose">Purpose</label>
-                    <select id="sitInPurpose" name="purpose" class="form-control mb-2" required>
-                        <option value="">Select</option>
-                        <option>C Programming</option>
-                        <option>Java</option>
-                        <option>C#</option>
-                        <option>PHP</option>
-                    </select>
-                    <label for="sitInLab">Lab</label>
-                    <select id="sitInLab" name="lab" class="form-control mb-2" required>
-                        <option value="">Select</option>
-                        {% for room in rooms %}
-                        <option>{{ room.room_number }}</option>
-                        {% endfor %}
-                    </select>
-                    <label for="sitInRemainingSession">Remaining</label>
-                    <input id="sitInRemainingSession" name="remaining_session" class="form-control mb-2" readonly>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="sitInIdNumber">ID Number</label>
+                            <input id="sitInIdNumber" name="id_number" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="sitInStudentName">Student Name</label>
+                            <input id="sitInStudentName" name="student_name" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="sitInPurpose">Purpose</label>
+                            <select id="sitInPurpose" name="purpose" class="form-control" required>
+                                <option value="">Select</option>
+                                <option>C Programming</option>
+                                <option>Java</option>
+                                <option>C#</option>
+                                <option>PHP</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="sitInLab">Lab</label>
+                            <select id="sitInLab" name="lab" class="form-control" required>
+                                <option value="">Select</option>
+                                {% for room in rooms %}
+                                <option>{{ room.room_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="sitInRemainingSession">Remaining</label>
+                            <input id="sitInRemainingSession" name="remaining_session" class="form-control" readonly>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -515,46 +696,54 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Current Sit-in</h5>
+                <h5 class="modal-title">Current Sit-in</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <table id="sitInRecordTable" class="table table-bordered table-hover w-100">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Sit ID Number</th>
-                            <th>ID Number</th>
-                            <th>Name</th>
-                            <th>Purpose</th>
-                            <th>Sit Lab</th>
-                            <th>Session</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for s in sitin_records %}
-                        <tr>
-                            <td>{{ s.id }}</td>
-                            <td>{{ s.student_id }}</td>
-                            <td>{{ s.name }}</td>
-                            <td>{{ s.purpose }}</td>
-                            <td>{{ s.lab }}</td>
-                            <td>{{ s.session if s.session else s.time_in }}</td>
-                            <td>{{ s.status }}</td>
-                            <td>
-                                {% if s.status == 'IN' %}
-                                <form method="POST" action="/timeout/{{ s.id }}" class="d-inline">
-                                    <button class="btn btn-danger btn-sm">OUT</button>
-                                </form>
-                                {% else %}
-                                <span class="text-success fw-bold">Done</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="table-responsive shadow-sm rounded-4">
+                    <table id="sitInRecordTable" class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Sit ID Number</th>
+                                <th>ID Number</th>
+                                <th>Name</th>
+                                <th>Purpose</th>
+                                <th>Sit Lab</th>
+                                <th>Session</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in sitin_records %}
+                            <tr>
+                                <td class="text-muted">{{ s.id }}</td>
+                                <td>{{ s.student_id }}</td>
+                                <td>{{ s.name }}</td>
+                                <td>{{ s.purpose }}</td>
+                                <td><strong>{{ s.lab }}</strong></td>
+                                <td>{{ s.session if s.session else s.time_in }}</td>
+                                <td>
+                                    {% if s.status == 'IN' %}
+                                        <span class="badge status-in-badge">IN</span>
+                                    {% else %}
+                                        <span class="badge status-out-badge">OUT</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.status == 'IN' %}
+                                    <form method="POST" action="/timeout/{{ s.id }}" class="d-inline">
+                                        <button class="btn btn-danger btn-sm">OUT</button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-success fw-bold">Done</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -593,7 +782,7 @@
                     </div>
                     <div class="ms-auto d-flex gap-2">
                         <button class="btn btn-sm btn-outline-secondary" onclick="clearReportFilters()">Clear Filters</button>
-                        <a href="/export_sitin_report" class="btn btn-sm btn-purple">⬇ Export CSV</a>
+                        <a href="/export_sitin_report" class="btn btn-sm btn-purple">⬇ Export PDF</a>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -808,6 +997,15 @@ function togglePw(inputId, btn) {
 // ── Auto-open Students modal after search ──
 const openSearch = {{ (open_search | default(false)) | tojson }};
 if (openSearch) new bootstrap.Modal(document.getElementById('studentsModal')).show();
+
+// ── Set min available date for PC schedules to today ──
+(function () {
+    const availabilityDate = document.getElementById('availabilityDate');
+    if (availabilityDate) {
+        const today = new Date().toISOString().split('T')[0];
+        availabilityDate.min = today;
+    }
+})();
 
 // ── DataTables ──
 let reportsTable = null;

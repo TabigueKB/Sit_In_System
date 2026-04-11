@@ -64,7 +64,7 @@
     <a class="navbar-brand text-white fw-bold">College of Computer Studies Sit-in Monitoring System</a>
     <div>
         <a class="text-white me-3" href="/">Home</a>
-        <a class="text-white me-3" href="#">Community</a>
+        <a class="text-white me-3" href="#" data-bs-toggle="modal" data-bs-target="#communityModal">Community</a>
         <a class="text-white me-3" href="/about">About</a>
         <a class="text-white me-3" href="/">Login</a>
         <a class="text-white" href="/register">Register</a>
@@ -72,7 +72,7 @@
 </nav>
 
 <div class="about-card text-center">
-    <img src="{{ url_for('static', filename='images/uclogo.png') }}" class="about-logo mb-3">
+    <img src="{{ url_for('static', filename='images/University-of-Cebu-Logo.jpg') }}" class="about-logo mb-3">
     <h1 class="about-title">University of Cebu - Main Campus</h1>
     <p class="about-text">
         The University of Cebu (UC) is a premier educational institution located in Cebu City, Philippines. 
@@ -85,6 +85,66 @@
         for leadership and professional success. Our mission is to equip students with knowledge, skills, and values 
         that empower them to make a positive impact in society and excel in their chosen careers.
     </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Community Modal -->
+<div class="modal fade" id="communityModal" tabindex="-1" aria-labelledby="communityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #003399; color: white;">
+                <h5 class="modal-title" id="communityModalLabel">University of Cebu Communities</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <img src="{{ url_for('static', filename='images/University-of-Cebu-Logo.jpg') }}" alt="University of Cebu Logo" style="max-height: 120px; object-fit: contain;">
+                </div>
+                <p class="text-center mb-4">Join the vibrant community at University of Cebu Main Campus and College of Computer Studies (CCS). Discover student organizations, publications, and activities that enrich campus life.</p>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-header" style="background-color: #003399; color: white;">
+                                <h5 class="mb-0">College of Computer Studies (CCS) Communities</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3"><strong>Bits &amp; Bytes Publication</strong><br><small>The official student publication of the College of Computer Studies, featuring articles on technology, programming, and student life.</small></li>
+                                    <li class="mb-3"><strong>CSS Student Council</strong><br><small>Represents CSS students in university governance and organizes academic and social events.</small></li>
+                                    <li class="mb-3"><strong>Programming Clubs</strong><br><small>Various coding and tech clubs including web development, mobile app development, and cybersecurity groups.</small></li>
+                                    <li class="mb-3"><strong>IT Competitions Team</strong><br><small>Participates in national and international programming contests and hackathons.</small></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-header" style="background-color: #003399; color: white;">
+                                <h5 class="mb-0">University of Cebu Main Campus Communities</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3"><strong>Lakandiwa Publication</strong><br><small>The official student newspaper of UC Main Campus, covering news, features, and opinions.</small></li>
+                                    <li class="mb-3"><strong>Webmasters Athletics</strong><br><small>UC's sports teams competing in CESAFI, including basketball, football, swimming, and more.</small></li>
+                                    <li class="mb-3"><strong>Student Organizations</strong><br><small>Various clubs and societies for arts, culture, environment, and community service.</small></li>
+                                    <li class="mb-3"><strong>Fraternities &amp; Sororities</strong><br><small>Recognized Greek-letter organizations promoting brotherhood/sisterhood and leadership.</small></li>
+                                    <li class="mb-3"><strong>Cultural Groups</strong><br><small>Dance troupes, choirs, and performing arts groups representing Cebuano culture.</small></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <p>For more information about joining communities, visit the Student Affairs Office or check the university website.</p>
+                    <a href="https://www.uc.edu.ph/" class="btn btn-outline-primary" target="_blank">Visit UC Website</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>
